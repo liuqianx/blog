@@ -229,7 +229,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/16/hello-world/">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="John Doe">
@@ -248,7 +248,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2020/03/16/hello-world/" itemprop="url">Hello World</a></h1>
+                <a class="post-title-link" href="/blog/2020/03/17/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3/" itemprop="url">数据库相关</a></h1>
         
 
         <div class="post-meta">
@@ -260,8 +260,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-16T22:21:29-04:00">
-                2020-03-16
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
               </time>
             
 
@@ -300,19 +300,2153 @@
       
         
           
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+            <h1 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h1><h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><h4 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h4><ol>
+<li><p>事务：事务包含一系列的操作，所有操作都必须完成，否则撤销回滚。</p>
+</li>
+<li><p>事务的ACID特征：</p>
+<ul>
+<li>原子性：要么都做，要么都不做。</li>
+<li>一致性：事务开始之前和结束之后，数据库从一个正确的状态到另一个正确的状态，没有破坏数据库定义的一些约束条件。我们通过AID来保证数据库的一致性，保证在宏观上操作状态是正确的。</li>
+<li>隔离性：并发的事务之间不互相干扰，一个事务相对于其它并发事务是隔离的。</li>
+<li>持久性：事务完成后，事务对数据库的所有更新将被保存到数据库，不能回滚。</li>
+</ul>
+</li>
+<li><p>MySQL的四种隔离级别：</p>
+<ul>
+<li>读取未提交内容：Read_Uncommited，有脏读。所有的事务都可以看到其他未提交事务的执行结果。</li>
+<li>读取提交内容：Read_Commited，有不可重复读。一个事务只能看到已经提交的事务做出的改变。</li>
+<li>可重复读：Repeated_Read，InnoDB默认的隔离级别，有幻读。<strong>同一行</strong>在<strong>同一个事务内</strong>无论怎么读取都是同一个结果。</li>
+<li>串行化：Serializable，通过强制事务排序，使之不可能相互冲突，从而解决幻读问题。</li>
+</ul>
+</li>
+<li><p>后三个隔离级别依次解决以下三个问题：</p>
+<ul>
+<li><p>脏读：读出无效数据，即一个事务读取另一事务还没有提交的数据，另一事务可能<strong>回滚</strong>。</p>
+</li>
+<li><p>不可重复读：在同一事务内的两次查询数据不一致，即读取了另一事务操作前和提交后的数据。</p>
+</li>
+<li><p>幻读：是不可重复读的特殊场景，一个是单条数据，一个是多条数据；幻读指在<strong>同一事务内</strong>的两次操作返回的数据条数不一致（两次查询中间有个插入操作）。</p>
+<blockquote>
+<p>可通过MVCC机制解决。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h4><ol>
+<li>Hash索引：哈希表，只适用于等值查询的场景，不能范围查询。</li>
+<li>B+树索引：B+树，数据在叶子节点上，并且有顺序访问指针。主键所在的索引即为聚簇索引。</li>
+<li>聚簇索引：有且只有一个，物理存放顺序与索引顺序一致，即索引树叶子节点同时是数据节点的索引。</li>
+<li>非聚簇索引：二级索引/普通索引，除了聚簇索引以外的索引，用来给主键以外的字段进行索引的索引。非聚簇索引的节点只是索引，同时叶子节点存储有主键的值（InnoDB）/指向对应数据块的指针（MyISAM）。</li>
+<li>复合索引：多个字段作为索引。<ul>
+<li>最左前缀匹配：首先对复合索引最左边的字段进行排序。</li>
+</ul>
+</li>
+<li>覆盖索引：如果SQL查找条件为普通索引，则需要扫描两次B+树，一次普通索引树，一次聚簇索引树。覆盖索引指将这个普通索引，建立到复合索引中去，由此只需要在一颗B+树上就能获得SQL所需的所有列数据。</li>
+</ol>
+<h4 id="数据库锁："><a href="#数据库锁：" class="headerlink" title="数据库锁："></a>数据库锁：</h4><p>共享锁和排他锁：读锁/写锁。</p>
+<p>意向锁：事务打算加行级读/写锁时，首先需要加意向锁。当一个表被上了行级锁时，意向锁避免了其他事务试图获取表级锁时扫描全表。</p>
+<p>表级锁：开销小，加锁快，不会出现死锁；锁的粒度大，容易发生锁冲突。</p>
+<p>行级锁：开销大，加锁慢，会出现死锁；锁的粒度小，并发度最高。</p>
+<p>乐观锁：需要自己实现，需要在数据表加上version字段，再在逻辑中使用CAS算法。</p>
+<p>悲观锁：select ** for update</p>
+<p>MVCC：Multiversion Concurrency Control，多版本并发控制，使用了一种与锁不同的手段来实现并发控制。为了让读写之间也不冲突，读取数据时通过类似快照的方式保存数据。SELECT可以去版本链中拿记录，这就实现了读-写，写-读的并发执行。</p>
+<h2 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h2><ol>
+<li><strong>Redis底层数据结构</strong>：</li>
+</ol>
+<ul>
+<li><p>Redis存储形式为key-value。key一定是string；value可以是string、list、hash、set、sortedset</p>
+</li>
+<li><p>RedisObject：Redis的通用数据结构，Redis中的每一个对象都由一个RedisObject结构来表示。</p>
+<ul>
+<li>dict：是一个哈希表，每个key/value对用一个dictEntry表示；采用增量式重哈希，在需要扩展内存时避免一次性对所有的key进行重哈希，而是将重哈希操作分散到对于dict的各个增删改查的操作中去，这种方法能做到每次只对一小部分key进行重哈希。</li>
+<li>sds：Simple Dynamic String，Redis的字符串结构，可动态扩展；如果是数字会转成long型储存。<ul>
+<li>字符串对象的编码可以是int/raw/embstr，字符串长度大于39用raw，小于用embstr。</li>
+</ul>
+</li>
+<li>ziplist：是经过特殊编码的双向链表，各节点在内存上前后相邻；但是插入会发生realloc/内存拷贝。<ul>
+<li>很类似数组，不同于数组的是ziplist每个元素所占的空间可变。</li>
+</ul>
+</li>
+<li>quicklist：也是一个双向链表，每个节点储存的都是一个ziplist；quicklist结合了双向链表和ziplist的优点；另外，每个ziplist的长度需要权衡。</li>
+<li>skiplist：用于解决链表的查找问题，相当于用多层链表随机建立多层索引。</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li><p><strong>Redis各数据类型对应实现</strong>：</p>
+<ul>
+<li>key-value：hashtable</li>
+<li>string：sds（int/raw/embstr）</li>
+<li>list：ziplist/quicklist</li>
+<li>hash：ziplist/dict</li>
+<li>set：intset/dict</li>
+<li>sortedset：skiplist</li>
+</ul>
+</li>
+<li><p><strong>内存回收</strong>：Redis 在自己的对象系统中构建了一个引用计数（reference counting）技术实现的内存回收机制， 通过这一机制， 程序可以通过跟踪对象的引用计数信息， 在适当的时候自动释放对象并进行内存回收。</p>
+</li>
+<li><p><strong>键的过期策略</strong>：定时删除、惰性删除 、定期删除。Redis采取惰性删除 + 定期删除。</p>
+</li>
+<li><p><strong>Redis数据持久化</strong>：1. 基于快照（rdb）；2. 保存所有写命令（aof）。</p>
+</li>
+<li><p><strong>Redis是单线程的</strong>：避免了上下文切换的问题；使用非阻塞的I/O多路复用机制，同时监听多个Socket。</p>
+</li>
+<li><p><strong>Redis的多机实现</strong>：</p>
+</li>
+</ol>
+<ul>
+<li><p>主从架构：主服务器负责接收写请求，从服务器负责接收读请求；首先从服务器发出SYNC命令，主服务器把所有的内容生成RDB复制到从服务器，后续通过<strong>写命令传播</strong>的方式将数据同步到从服务器。</p>
+</li>
+<li><p>哨兵机制(Sentinel)：如果主服务器挂了，会从Sentinel中进行选举，把某一个从服务器升级为主服务器，原主服务器重连后成为从服务器。</p>
+</li>
+</ul>
+<ol start="8">
+<li><p><strong>一致性哈希</strong>：分表/使用集群时，把数据随机分配到各节点中的方法。对2^32取模，哈希值空间形成一个Hash环，然后将节点映射至环上。当数据映射到环上后顺时针移动，第一个遇到的节点即是其应该定位到的节点。</p>
+</li>
+<li><p><strong>缓存雪崩</strong>：因为缓存数据设置的过期时间相同，这些缓存同时失效，全部请求给到数据库，数据库很可能崩溃。</p>
+<ul>
+<li>解决办法：给缓存过期时间加上一个随机值，避免缓存在同一时间过期；实现主从架构/哨兵机制。</li>
+</ul>
+</li>
+<li><p><strong>缓存穿透</strong>：请求一个不存在的数据，缓存大量不命中，导致请求走数据库，给数据库很大压力。</p>
+</li>
+</ol>
+<ul>
+<li>解决办法：使用布隆过滤器提前拦截不合法参数；把数据库找不到时返回的空对象也写到缓存中去。</li>
+</ul>
+<ol start="11">
+<li><strong>缓存击穿</strong>：对于设置了过期时间的键可能会在某些时间点被高并发的访问。缓存雪崩强调多个键同时失效。</li>
+</ol>
+<ul>
+<li>解决办法：在访问key之前，采用SETNX（set if not exists）来设置另一个短期key来锁住当前key的访问，访问结束再删除该短期key。</li>
+</ul>
+<ol start="12">
+<li><strong>数据一致性</strong>：主要针对更新/写操作。<ul>
+<li>先更新数据库，再删除缓存：高并发下表现优异。</li>
+<li>先删除缓存，再更新数据库：两个操作的原子性被破坏时表现优异。</li>
+</ul>
+</li>
+<li><strong>CAP</strong>：一个分布式系统最多只能同时满足CAP这三项中的两项。</li>
+</ol>
+<ul>
+<li><p>Consistency：一致性，所有节点在同一时间的数据保持一致。</p>
+<ul>
+<li>强一致性：要求更新过的数据能被后续的访问都能看到。<ul>
+<li>最终一致性：要求经过<strong>一段时间后</strong>能访问到更新后的数据。<ul>
+<li>Availability：可用性，服务在正常响应时间内一直可用。</li>
+<li>Partition tolerance：分区容错性，一般在C和A之间权衡。<h4 id="Redis分布式锁："><a href="#Redis分布式锁：" class="headerlink" title="Redis分布式锁："></a>Redis分布式锁：</h4></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>当我们有多个JVM实例在服务器端运行时，Java提供的原生锁机制会失效，所以我们要保证所有JVM实例用的同一个锁，即分布式锁。分布式锁和我们平常讲到的锁原理基本一样，目的就是确保在每个线程都要操作一个数据时，只有一个线程在同一刻操作这个数据。</p>
+<p>setnx key value：Set if not exists，判断能否拿到锁，拿到则执行后续操作</p>
+<p>del key：完成操作之后释放锁。</p>
+<p>为了避免死锁，设置setnx key的过期时间。</p>
 
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
 
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+    
 
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+    
 
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" itemprop="url">数据结构和算法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><h2 id="1-平衡查找树"><a href="#1-平衡查找树" class="headerlink" title="1. 平衡查找树"></a>1. 平衡查找树</h2><p><strong>AVL树</strong>：左右子树高度不超过1的<strong>二叉</strong>查找树。要求严格，维护平衡给所需代价太大了。</p>
+<p><strong>红黑树</strong>：一种<strong>二叉</strong>平衡查找树，对AVL的改进。每个节点附有一个颜色，通过对路径<strong>着色方式</strong>的限制，确保没有一条路径会比其它路径长出两倍，从而达到一种相对平衡。应用在Java的TreeSet/TreeMap、HashMap，适合在内存中的排序。</p>
+<ul>
+<li>根节点为黑色</li>
+<li>任何上下相邻的节点都不能同时为红色</li>
+<li>每个节点，从该节点到达其可达的叶子节点的所有路径，都包含相同数目的黑色节点</li>
+</ul>
+<p><strong>B-树</strong>：一种<strong>多路</strong>平衡查找树。所有节点都保存有关键字记录的指针。</p>
+<p><strong>B+树</strong>：一种<strong>多路</strong>平衡查找树。主要应用于数据库索引。为了磁盘而设计，尽量减少I/0次数。</p>
+<ul>
+<li>非叶子节点只进行索引，不保存实际的数据，实际数据都保存在叶子节点中。所有的关键字都出现在叶子节点的链表中（稠密索引），非叶子节点只是叶子节点的索引（稀疏索引）。</li>
+<li>相比于红黑树，高度远远小于红黑树。</li>
+<li>相比于B-树，B+树的内部节点并没有指向关键字具体信息的指针，所以B+树的内部节点更小；如果把所有属于同一内部节点的关键字放在同一盘块，那么就可以一次性读入内存，减少I/O次数。另外叶子节点可以包含一个指向下一叶子节点的指针，加快顺序存取，遍历叶子节点就可以完成整棵树的遍历，而B-树需要遍历整棵树。</li>
+</ul>
+<h2 id="2-优先队列"><a href="#2-优先队列" class="headerlink" title="2. 优先队列"></a>2. 优先队列</h2><p>出队顺序按照优先级来决定。一般用最小堆来实现。</p>
+<p>最小堆：用数组表示，左孩子为下标i的2倍，父亲节点为下表i的1/2。取最小元素时，交换堆顶和最后一个元素，弹出最后一个元素，再对堆顶进行下沉操作；每插入一个元素就进行一次上浮操作；</p>
+<h2 id="3-跳表"><a href="#3-跳表" class="headerlink" title="3. 跳表"></a>3. 跳表</h2><p>为了加快链表的查询速度，建立多层索引。通过随机的方式来决定新插入节点的高度，从而形成多层索引。最终形成的结构很像搜索树。与AVL树相比，靠随机来维持索引结构平衡。用于Redis Sorted-set的实现。</p>
+<p><img src="https://lotabout.me/2018/skip-list/skip-list.svg" alt="img"></p>
+<h2 id="4-布隆过滤器"><a href="#4-布隆过滤器" class="headerlink" title="4. 布隆过滤器"></a>4. 布隆过滤器</h2><p>布隆过滤器是一个bit数组。我们可以通过布隆过滤器知道某个元素一定不存在或者可能存在。</p>
+<img src="https://pic3.zhimg.com/80/v2-c0c20d8e06308aae1578c16afdea3b6a_1440w.jpg" alt="img" style="zoom:60%;" />
+
+<p>使用多个哈希函数生成多个不同的哈希值，把哈希值映射到布隆过滤器上。我们查询一个元素是否存在时，如果它映射的多个哈希值在布隆过滤器上都为1，则这个元素可能存在；否则一定不存在。</p>
+<p>不支持删除操作。但可以通过计数来支持，但这样就不能只用bit来存储了。</p>
+<h2 id="5-并查集"><a href="#5-并查集" class="headerlink" title="5. 并查集"></a>5. 并查集</h2><p>并查集由多个树状结构组成</p>
+<img src="https://pic1.zhimg.com/v2-3c353bc781c7f3553079d541a9cfdc28_r.jpg" alt="preview" style="zoom:55%;" />
+
+<p>并查集包括两个操作：</p>
+<ul>
+<li>合并（Union）：把两个不相交的集合合并为一个集合。找到元素所属两颗树的根节点，把其中一个根节点的父节点指向另外一个根节点。</li>
+<li>查询（Find）：查询两个元素是否在同一个集合中。根节点是否相同。</li>
+</ul>
+<p>有路径压缩问题。</p>
+<h1 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h1><h2 id="1-二分查找"><a href="#1-二分查找" class="headerlink" title="1. 二分查找"></a>1. 二分查找</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">binarySearch</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> left = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> right = nums.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> mid = left + (right - left) / <span class="number">2</span>; <span class="comment">//注意</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123; <span class="comment">//注意</span></span><br><span class="line">        <span class="keyword">if</span> (nums[mid] == target) &#123;</span><br><span class="line">            <span class="keyword">return</span> mid;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">            left = mid + <span class="number">1</span>; <span class="comment">//注意</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span>; <span class="comment">//注意</span></span><br><span class="line">        &#125;</span><br><span class="line">        mid = left + (right - left) / <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-快速排序"><a href="#2-快速排序" class="headerlink" title="2. 快速排序"></a>2. 快速排序</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quicksort</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (start &gt;= end) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> left = start;</span><br><span class="line">        <span class="keyword">int</span> right = end;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> pivot = nums[start];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">            <span class="keyword">while</span> (left &lt; right &amp;&amp; nums[right] &gt;= pivot) &#123;</span><br><span class="line">                right--; <span class="comment">//注意先缩右边</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span> (left &lt; right &amp;&amp; nums[left] &lt;= pivot) &#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">int</span> temp = nums[left];</span><br><span class="line">            nums[left] = nums[right];</span><br><span class="line">            nums[right] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">        nums[start] = nums[left]; <span class="comment">//注意最后换一下left和start的位置</span></span><br><span class="line">        nums[left] = pivot;</span><br><span class="line">        quicksort(nums, start, right-<span class="number">1</span>);</span><br><span class="line">        quicksort(nums, right+<span class="number">1</span>, end);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-二叉树的遍历"><a href="#2-二叉树的遍历" class="headerlink" title="2. 二叉树的遍历"></a>2. 二叉树的遍历</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">traverse</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 出口</span></span><br><span class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// do something here. 前序遍历</span></span><br><span class="line">    traverse(root.left);</span><br><span class="line">    <span class="comment">// do something here. 中序遍历</span></span><br><span class="line">    traverse(root.right);</span><br><span class="line">    <span class="comment">// do something here. 后续遍历</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-回溯算法"><a href="#3-回溯算法" class="headerlink" title="3. 回溯算法"></a>3. 回溯算法</h2><p>解决一个回溯问题，实际上就是一个决策树的遍历过程。你只需要思考 3 个问题：</p>
+<ol>
+<li>路径：也就是已经做出的选择。</li>
+<li>选择列表：也就是你当前可以做的选择。</li>
+<li>结束条件：也就是到达决策树底层，无法再做选择的条件。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">result = []</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(路径，选择列表)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (满足结束条件) &#123;</span><br><span class="line">		result.add(路径);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125; </span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(选择 : 选择列表) &#123;</span><br><span class="line">		做选择,然后将该选择从选择列表中删除</span><br><span class="line">		路径.add(选择); <span class="comment">//记录选择</span></span><br><span class="line">		backtrack(路径，选择列表);</span><br><span class="line">		路径.remove(选择); <span class="comment">//撤销选择</span></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-双指针技巧"><a href="#4-双指针技巧" class="headerlink" title="4. 双指针技巧"></a>4. 双指针技巧</h2><h4 id="快慢指针"><a href="#快慢指针" class="headerlink" title="快慢指针"></a>快慢指针</h4><ol>
+<li>判断链表是否有环</li>
+<li>寻找链表的中点</li>
+<li>寻找链表的倒数第K个元素</li>
+</ol>
+<h4 id="左右指针"><a href="#左右指针" class="headerlink" title="左右指针"></a>左右指针</h4><ol>
+<li>二分查找</li>
+<li>两数之和</li>
+<li>反转数组</li>
+<li>滑动窗口算法</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url">设计模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><p>6个基本原则：</p>
+<ul>
+<li>开闭原则（Open Close Principle）：对修改闭合，对扩展开放。</li>
+<li>单一职责原则（Single Responsibility Principle）：一个类做一件事。</li>
+<li>里氏代换原则（Liskov Substitution Principle）：通过继承的方式来扩展功能，不要改变父类原有功能。</li>
+<li>依赖倒转原则（Dependence Inversion Principle）：高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节，细节应该依赖抽象。？</li>
+<li>接口隔离原则（Interface Segregation Principle）：一个类引进的依赖尽量的少，不要重复关联接口。</li>
+<li>迪米特法则（Demeter Principle）：又称最少知道原则，一个类对自己依赖的类知道的越少越好</li>
+</ul>
+<p>目的：高内聚，低耦合。（面向接口编程）</p>
+<p>分类：创建型模式、结构型模式、行为型模式。</p>
+<h2 id="创建型模式"><a href="#创建型模式" class="headerlink" title="创建型模式"></a>创建型模式</h2><h4 id="1-简单工厂模式"><a href="#1-简单工厂模式" class="headerlink" title="1. 简单工厂模式"></a>1. 简单工厂模式</h4><p>一个工厂类XxxFactory，里面有一个静态方法，根据我们输入的不同的参数，返回不同的派生自同一个父类（或实现同一个接口）的实例对象。</p>
+<h4 id="2-工厂模式"><a href="#2-工厂模式" class="headerlink" title="2. 工厂模式"></a>2. 工厂模式</h4><p>之所以需要引入工厂模式，是因为我们往往需要使用两种或以上的工厂。</p>
+<p>第一步，我们需要选取一个合适的工厂；第二步，和简单工厂一样返回一个实例对象。</p>
+<blockquote>
+<p>比如，我们有 LogFactory 接口，实现类有 FileLogFactory 和 KafkaLogFactory，分别对应将日志写入文件和写入 Kafka 中；显然，我们客户端第一步就需要决定到底要实例化 FileLogFactory 还是 KafkaLogFactory。</p>
+</blockquote>
+<h4 id="3-抽象工厂模式"><a href="#3-抽象工厂模式" class="headerlink" title="3. 抽象工厂模式"></a>3. 抽象工厂模式</h4><p>我们首先定义一个抽象的工厂，在这里定义一个工厂需要生产的产品。继承这个抽象工厂的工厂需要用自己的方式去生产这些产品，工厂内的这些产品之间可能存在联系。</p>
+<h4 id="4-单例模式"><a href="#4-单例模式" class="headerlink" title="4. 单例模式"></a>4. 单例模式</h4><p>饿汉模式：在刚加载类的时候就进行了实例化。</p>
+<p>懒汉模式：在需要用的时候才进行实例化。双重校验锁。</p>
+<blockquote>
+<p><strong>第一次校验</strong>：使得大部分时间不需要执行同步方法里面的代码，大大提高了性能。</p>
+<p><strong>第二次校验</strong>：防止有其他线程在当前线程进入同步块前就已完成单例的创建。</p>
+<p><strong>volatile</strong>：因为 singleton = new Singleton() 不是一个原子操作，可以分为三步：①为 singleton 分配内存空间；②初始化 singleton；③将 singleton 指向分配的内存空间。如果不加volatile，由于JVM指令重排，多线程下一个线程未完全初始化singleton对象时，另一线程调用getInstance()时返回一个半初始化的对象。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">	<span class="comment">//私有化构造方法</span></span><br><span class="line"> 	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;&#125;;</span><br><span class="line"> </span><br><span class="line"> 	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton=<span class="keyword">null</span>;</span><br><span class="line"> </span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line"> 		<span class="comment">//第一次校验</span></span><br><span class="line">        <span class="keyword">if</span>(singleton==<span class="keyword">null</span>)&#123;     </span><br><span class="line">            <span class="keyword">synchronized</span>(Singleton<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="comment">//第二次校验</span></span><br><span class="line">                <span class="keyword">if</span>(singleton==<span class="keyword">null</span>)&#123;     </span><br><span class="line">                	singleton=<span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>嵌套类：利用了嵌套类可以访问外部类的静态属性和静态方法的特性。</p>
+<p>枚举类：</p>
+<h2 id="结构型模式"><a href="#结构型模式" class="headerlink" title="结构型模式"></a>结构型模式</h2><h4 id="1-代理模式"><a href="#1-代理模式" class="headerlink" title="1. 代理模式"></a>1. 代理模式</h4><p>用一个代理来<strong>隐藏具体实现类的实现细节</strong>。对客户端隐藏真实实现，由代理来负责客户端的所有请求，但是代理本身不会完成实际的业务逻辑。</p>
+<p>代理类需要implements其代理的类，代理的内部必然会创建一个真实的实现类，其中核心动作是真实实现类来做的，代理只是在核心动作前后做了一些<strong>“无关紧要”</strong>的事。</p>
+<p>静态代理：由程序员创建或特定工具自动生成源代码再对其编译。在程序运行前代理类的.class文件就已经存在了。</p>
+<p>动态代理：动态代理类的字节码在程序运行时由Java<strong>反射机制</strong>动态生成，无需程序员手工编写它的源代码。</p>
+<blockquote>
+<p>在 AOP 中，其实就是动态代理的过程。比如 Spring 中，我们自己不定义代理类，但是 Spring 会帮我们动态来定义代理，然后把我们定义在 @Before、@After、@Around 中的代码逻辑动态添加到代理中。</p>
+<p>XxxService 接口和 XxxServiceImpl 实现采用JDK动态代理。</p>
+</blockquote>
+<img src="https://user-gold-cdn.xitu.io/2018/10/19/1668ac9a05ed0c11?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="proxy" style="zoom:50%;" />
+
+<h4 id="2-适配器模式"><a href="#2-适配器模式" class="headerlink" title="2. 适配器模式"></a>2. 适配器模式</h4><p>适配器模式的场景是：有一个现成的类，我们想把它<strong>当作</strong>另一个接口类来使用。</p>
+<p>所以我们需要实现这个接口，但是我们现成的类没有完全实现这个接口，需要加一层适配器来进行适配，在适配器中实现现成的类中没有实现的方法，然后我们就可以把这个现成的类看作这个接口类来使用了。</p>
+<img src="https://user-gold-cdn.xitu.io/2018/10/19/1668ac9a06512b0c?imageslim" alt="img" style="zoom:50%;" />
+
+<h4 id="3-装饰器模式"><a href="#3-装饰器模式" class="headerlink" title="3. 装饰器模式"></a>3. 装饰器模式</h4><p>代理只是在核心动作前后做了一些“无关紧要”的事，并没有对真实实现类的功能本身进行增强。而装饰器模式是对真实的实现类<strong>本身</strong>进行增强，拓展在其基础之上的功能。</p>
+<p>两者都是对类的方法进行扩展，但装饰器模式强调的是增强自身，在被装饰之后你能够在被增强的类上使用增强后的功能。增强后你还是你，只不过能力更强了而已；而代理模式则强调要让别人帮你去做一些本身与你业务没有太多关系的职责（记录日志、设置缓存）。代理模式是为了实现对象的控制，因为被代理的对象往往难以直接获得或者是其内部不想暴露出来。</p>
+<h2 id="行为型模式"><a href="#行为型模式" class="headerlink" title="行为型模式"></a>行为型模式</h2><h4 id="1-观察者模式"><a href="#1-观察者模式" class="headerlink" title="1. 观察者模式"></a>1. 观察者模式</h4><p>观察者模式包括两个操作：观察者<strong>订阅</strong>自己关心的主题，主题有数据变化后<strong>通知</strong>观察者们。</p>
+<p>首先，需要定义主题，每个主题需要持有观察者列表的引用，用于在数据变更的时候通知各个观察者。</p>
+<p>观察者模式的目的是一个事件出来了，会有多个不同的类处理相应的信息。</p>
+<blockquote>
+<p>比如，订单修改成功事件，我们希望发短信的类得到通知、发邮件的类得到通知、处理物流信息的类得到通知等。</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url">计算机网络</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="计算机网络"><a href="#计算机网络" class="headerlink" title="计算机网络"></a>计算机网络</h1><p>[TOC]</p>
+<h2 id="1-五层架构"><a href="#1-五层架构" class="headerlink" title="1. 五层架构"></a>1. 五层架构</h2><p>web通信：浏览器输入一个网址 ——&gt; DNS解析域名 ——&gt; 产生HTTP请求报文 ——&gt; 三次握手建立TCP连接  ——&gt; TCP分割HTTP报文数据，保证数据的可靠运输 ——&gt; IP配合ICMP在网络层不断寻址，通过ARP找到通信目的地MAC ——&gt; 建立点对点信道。</p>
+<ol>
+<li>物理层：主要是基于电器特性发送高低电压（电信号）。<ul>
+<li>中继系统：转发器（repeater）</li>
+</ul>
+</li>
+<li>数据链路层：单纯的电信号0和1没有任何意义，必须规定电信号多少位一组，每组什么意思；数据链路层定义了电信号的分组方式，定义了主机的MAC地址，把实现控制数据运输的协议的硬件和软件加到链路上。通过各种控制协议，将有差错的物理信道变为无差错的、能可靠传输数据帧的数据链路。<ul>
+<li>点对点信道/PPP、广播信道</li>
+<li>Ethernet协议、ARP协议（介于数据链路层和网络层之间）</li>
+<li>MAC地址</li>
+<li>中继系统：网桥（bridge）</li>
+</ul>
+</li>
+<li>网络层：提供路由和寻址的功能，使两终端系统能够互连且决定最佳路径，并具有一定的拥塞控制和流量控制的能力。<ul>
+<li>IP配合ARP、ICMP（提供发生在通信环境中的各种问题反馈）</li>
+<li>每个主机都有一个ARP table，记录局域网里各主机/路由器的IP和MAC地址映射。</li>
+<li>子网划分</li>
+<li>中继系统：路由器（router）</li>
+</ul>
+</li>
+<li>传输层：在底下三层的基础上，我们已经可以实现主机间的通信，传输层实现的是不同进程间的通信。传输层向用户提供可靠的端到端的差错和流量控制，保证报文的正确传输。向高层屏蔽下层数据通信的细节，即向用户透明地传送报文。通信的端点是主机中的进程/端口。<ul>
+<li>TCP/UDP：transmission control protocal/user datagram protocal</li>
+<li>Socket：用IP:Port表示一个套接字</li>
+</ul>
+</li>
+<li>应用层：将应用程序的信息进行加工( 产物为“报文段” )，并传递给下一个层次( 传输层 )。将传输层传过来的信息进行加工( 产物还是“报文段” )，并传递给应用程序。<ul>
+<li>DNS、FTP、SMTP</li>
+<li>HTTP：使用明文；无状态/记忆协议；</li>
+<li>HTTPS</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>理解：</p>
+<p>物理层解决了电信号的传播；</p>
+<p>数据链路层解决了电信号传播中可能出现的差错，以广播的方式确保了数据可以从一个MAC地址传到另一个MAC地址；到这里其实理论上所有的主机都可以进行通信了，但是如果全世界的电脑都以广播的方式来寻找目的MAC地址，就太不合理了；</p>
+<p>我们设计网络层，使用IP地址来划分<strong>子网</strong>（广播域），在同一子网下的就使用<strong>广播</strong>的方式发送，否则使用<strong>路由</strong>的方式向不同的子网分发数据包。</p>
+<p>到这里我们已经实现世界范围内主机的通信，传输层实现了主机的不同进程（port）间的通信。</p>
+<p>最后应用层在传输层的基础下，通过不同应用层协议把传输层传来的数据进行加工交给进程处理。</p>
+</blockquote>
+<h2 id="2-TCP-UDP"><a href="#2-TCP-UDP" class="headerlink" title="2. TCP/UDP"></a>2. TCP/UDP</h2><p>可靠的传输方式：只要不得到确认，就重新发送数据报，直到得到对方的确认为止。</p>
+<h4 id="TCP三次握手"><a href="#TCP三次握手" class="headerlink" title="TCP三次握手"></a>TCP三次握手</h4><ol>
+<li><p>客户端向服务器发出请求报文：SYN=1，seq=x（客户端的初始序号）；</p>
+</li>
+<li><p>服务器端收到报文，发出确认报文：SYN=1，ACK=1，ack=x+1（确认收到了对方序号为x的报文），seq=y（服务器端的初始序号）；</p>
+</li>
+<li><p>客户端收到报文，给出确认：ACK=1，ack=y+1（确认收到了对方序号为y的报文），seq=x+1（客户端的序号）。</p>
+</li>
+<li><p>发送完毕后，客户端进入 ESTABLISHED状态，当服务器端接收到这个包时，也进入ESTABLISHED状态，TCP 握手结束。</p>
+<blockquote>
+<p> 为什么需要三次握手？</p>
+<p>握手的目的：通信双方对彼此的数据原点（Initial sequence number）得到确认。三次握手才能够让双方都确认收到彼此的初始序列号。如果是两次握手，服务端无法得知客户端是否收到自己的初始序列号。</p>
+<p>第三次握手可以携带数据，第一次不携带是防止SYN攻击。</p>
+</blockquote>
+<img src="https://raw.githubusercontent.com/HIT-Alibaba/interview/master/img/tcp-connection-made-three-way-handshake.png" alt="three-way-handshake" style="zoom:70%;" />
+
+</li>
+</ol>
+<h4 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h4><ol>
+<li><p>客户端发出连接释放报文：FIN=1，seq=u；</p>
+</li>
+<li><p>服务器端收到报文，发出确认报文：ACK=1，ack=u+1，seq=v；（服务器已收到请求，但是要准备一下）</p>
+</li>
+<li><p>服务器端将最后的数据发送完后，再次发送连接释放报文：FIN=1，ACK=1，ack=u+1，seq=w；</p>
+</li>
+<li><p>客户端收到报文，必须发出确认：ACK=1，ack=w+1，seq=u+1。</p>
+<blockquote>
+<p>客户端TIME_WAIT等待2MSL的目的：保证最后一个ACK包能被服务端收到，因为服务端如果在LAST_ACK状态等待一段时间没收到客户端的ACK包，就会重传FIN-ACK包。</p>
+</blockquote>
+<img src="https://raw.githubusercontent.com/HIT-Alibaba/interview/master/img/tcp-connection-closed-four-way-handshake.png" alt="four-way-handshake" style="zoom:70%;" />
+
+</li>
+</ol>
+<h4 id="滑动窗口协议"><a href="#滑动窗口协议" class="headerlink" title="滑动窗口协议"></a>滑动窗口协议</h4><ol>
+<li>为了提高TCP传输的吞吐量设计</li>
+<li>各维持一个发送方/接收方缓冲区，用来解决网络之间数据不可靠的问题，例如丢包，重复包，乱序。</li>
+<li>发生丢包时，超时重发。</li>
+</ol>
+<h4 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h4><ol>
+<li>UDP是一个非连接的协议，尽可能快地把来自应用程序的数据扔到网络上。UDP尽最大努力交付，即不保证可靠交付，因此主机不需要维持复杂的链接状态表，可以同时向多个客户机传输相同的消息。</li>
+<li>UDP信息包的标题很短，只有8个字节，TCP有20个字节。</li>
+<li>UDP支持一对一、一对多、多对一的通信模式；TCP只支持点对点。</li>
+<li>UDP没有拥塞控制，流量控制。</li>
+</ol>
+<h2 id="3-HTTP"><a href="#3-HTTP" class="headerlink" title="3. HTTP"></a>3. HTTP</h2><ol>
+<li><p>HTTP是一个基于TCP/IP通信协议来传递数据的协议，传输的数据类型为HTML 文件、图片、查询结果等。</p>
+</li>
+<li><p>HTTP协议支持客户端/服务端模式，也是一种请求/响应模式的协议。</p>
+</li>
+<li><p>HTTP允许传输任意类型的数据对象。传输的类型由Content-Type加以标记。</p>
+</li>
+<li><p>无连接：每次连接只处理一个请求，不能保持会话连接，为了弥补这种不足，产生了两种记录HTTP状态的技术——Cookie、Session。</p>
+<ul>
+<li><p>Cookie：由服务器生成，<strong>发送并存储在浏览器</strong>，浏览器在下次请求同一服务器时会将该Cookie附上。</p>
+</li>
+<li><p>Session：由服务器生成，<strong>存储在服务器端</strong>的一种数据结构，前端仅需保存一个SessionId（可以保存在Cookie中），用来跟踪用户的状态。</p>
+</li>
+<li><p>Token：用户登录成功后服务器生成一个加密Token，前端每次请求附上这个Token给后端校验。适用于集群。</p>
+</li>
+</ul>
+</li>
+<li><p>请求报文的组成：请求行、请求头、请求正文</p>
+</li>
+<li><p>响应报文的组成：状态行、响应头、响应正文</p>
+<ul>
+<li>1**：信息，服务器收到请求，需要请求者继续执行操作；</li>
+<li>2**：成功，操作被成功接收且处理；</li>
+<li>3**：重定向，需要进一步的操作来完成请求；</li>
+<li>4**：客户端错误，请求包含语法错误或无法完成请求；</li>
+<li>5**：服务器错误，服务器在处理请求的过程中发生错误。</li>
+</ul>
+</li>
+<li><p>因为使用明文传输，存在安全问题，由此产生HTTPS。</p>
+</li>
+<li><p>HTTPS：在HTTP的基础上使用SSL建立安全的通信线路。首先HTTP请求服务端生成数字证书（包含公钥）返回给客户端，客户端使用公钥加密一个随机数发送给服务端，服务端用私钥解密得到随机数，再用AES加密，作为密钥互相加密解密内容来进行后续通信。</p>
+</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/%E9%AB%98%E5%B9%B6%E5%8F%91%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/%E9%AB%98%E5%B9%B6%E5%8F%91%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F/" itemprop="url">高并发秒杀系统</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="高并发秒杀系统"><a href="#高并发秒杀系统" class="headerlink" title="高并发秒杀系统"></a>高并发秒杀系统</h1><h2 id="1-流程"><a href="#1-流程" class="headerlink" title="1. 流程"></a>1. 流程</h2><ol>
+<li><p>前端请求一个商品详情页，如果缓存中存在就从缓存中取；</p>
+</li>
+<li><p>前端用../{productId}/exposer请求商品购买的接口 ；</p>
+</li>
+<li><p>后端比较现在的时间和商品秒杀的时间，如果到了时间则用ID生成一串md5返回，否则返回秒杀时间，封装成一个Exposer类对象（DTO）返回给前端；</p>
+</li>
+<li><p>若前端得到了md5，则可以对../{productId}/{md5}/execute发起购买请求；</p>
+</li>
+<li><p>在减库存之前加一个Redis分布式锁（setnx）；</p>
+</li>
+<li><p>对数据库商品减库存的时候再次进行判断时间/库存是否足够 ；</p>
+</li>
+<li><p>失败则返回原因提示，封装成一个OrderExecutionState类对象（DTO）返回 。</p>
+<p>成功则将一条订单写入redis消息队列，异步插入数据库。（同时删除缓存中的这条商品数据来实现一致性）</p>
+</li>
+<li><p>对库存数解锁。</p>
+</li>
+<li><p>结束。</p>
+</li>
+</ol>
+<h2 id="2-同步控制"><a href="#2-同步控制" class="headerlink" title="2. 同步控制"></a>2. 同步控制</h2><h4 id="多线程减库存的实现："><a href="#多线程减库存的实现：" class="headerlink" title="多线程减库存的实现："></a>多线程减库存的实现：</h4><ol>
+<li>用synchronized保证代码同步：不可行，synchronized只作用于单个jvm实例，如果有分布式集群则失效。单个jvm时也无法保证，与代码中的事务传播级别，数据库的事务隔离级别，加锁时机等相关。</li>
+<li>不查询直接更新：不具备通用性。</li>
+<li>CAS：要加上版本号，数据库的事务隔离级别必须是RC。</li>
+<li>使用数据库锁：select xx for update，悲观锁。</li>
+<li>使用分布式锁：zookeeper、redis等。</li>
+</ol>
+<h2 id="3-优化"><a href="#3-优化" class="headerlink" title="3. 优化"></a>3. 优化</h2><h4 id="高并发优化："><a href="#高并发优化：" class="headerlink" title="高并发优化："></a>高并发优化：</h4><ol>
+<li><p>对于前端控制：按钮防重复、按钮在秒杀开始前置黑</p>
+</li>
+<li><p>对于后端缓存：使用Redis缓存序列化product、接口地址</p>
+</li>
+<li><p>对于通信过程：使用消息队列</p>
+</li>
+<li><p>对于秒杀操作：</p>
+<ul>
+<li><p>使用存储过程：把减库存+建立订单整个事务在MySQL端完成，没有通用性。</p>
+</li>
+<li><p>定制SQL：修改MySQL源码，不推荐。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="Redis的具体使用："><a href="#Redis的具体使用：" class="headerlink" title="Redis的具体使用："></a>Redis的具体使用：</h4><ol>
+<li>商品列表放入Redis List</li>
+<li>商品的详情数据序列化后保存在Redis，设置过期时间</li>
+<li>扣库存通过Redis setnx制造分布式锁，库存同步扣除</li>
+<li>订单产生后发货的数据，通过消息队列处理<ul>
+<li>利用list的LPUSH + BRPOP实现生产者/消费者模式</li>
+<li>利用channel实现发布/订阅模式</li>
+</ul>
+</li>
+</ol>
+<h4 id="系统架构部署优化："><a href="#系统架构部署优化：" class="headerlink" title="系统架构部署优化："></a>系统架构部署优化：</h4><ol>
+<li>动静态资源分离：CDN</li>
+<li>集群：Nginx负载均衡</li>
+<li>服务器缓存：Redis</li>
+<li>数据库</li>
+<li>消息队列</li>
+</ol>
+<h2 id="4-学习到的杂项"><a href="#4-学习到的杂项" class="headerlink" title="4. 学习到的杂项"></a>4. 学习到的杂项</h2><ol>
+<li>DTO类的使用</li>
+<li>定义多个Exception异常对象</li>
+<li>enums枚举类的使用</li>
+<li>Redis分布式锁</li>
+<li>使用@Transactional定义事务</li>
+<li>使用MD5暴露接口</li>
+<li>Restful接口：/模块/资源/{标识}/操作</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/Todo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/Todo/" itemprop="url">Todo</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Todo"><a href="#Todo" class="headerlink" title="Todo"></a>Todo</h2><h4 id="select、poll、epoll："><a href="#select、poll、epoll：" class="headerlink" title="select、poll、epoll："></a>select、poll、epoll：</h4><p>这就要从多路复用说起。拿读来举例，首先我们读的数据来自硬件设备（硬盘、网卡），在linux中，我们把这些可读写的设备都看作文件，用一个fd（文件描述符）来标识。</p>
+<p>只有内核空间有资格对这些设备进行访问，所以一个用户进程的IO访问包括两个步骤：内核把这些设备里的数据拷贝至内核空间（所谓的fd就绪），进程再把数据从内核空间拷贝到用户空间。</p>
+<p>多路复用机制下，在第二个阶段是阻塞的，但在第一个阶段是非阻塞的。select、poll、epoll就代表了在第一阶段如何选择就绪fd的方法。</p>
+<ul>
+<li><p>select中把所有需要监视的fd/socket都放在一个数组里，每次调用select()时遍历fd从而找到就绪的fd集合，然后select唤醒进程进行处理。因为是数组，所以有上限。</p>
+</li>
+<li><p>poll中把所有需要监视的fd/socket都放在一个链表里，每次调用poll()时遍历fd从而找到就绪的fd集合，然后poll唤醒进程进行处理。</p>
+</li>
+<li><p>epoll中只需维持一个Ready队列，每当有fd/socket准备就绪时会调用回调函数，插入到队列之中。epoll使用epoll_wait来轮询Ready队列然后唤醒进程进行处理。</p>
+<ul>
+<li>水平触发：默认工作模式，即当epoll_wait检测到某描述符事件就绪并通知应用程序时，进程可以不立即处理该事件；下次调用epoll_wait时，会再次通知此事件。</li>
+<li>边缘触发：当epoll_wait检测到某描述符事件就绪并通知应用程序时，进程必须立即处理该事件。如果不处理，下次调用epoll_wait时，不会再次通知此事件。所以程序要写的很细致。</li>
+</ul>
+</li>
+</ul>
+<h4 id="访问一次URL的流程"><a href="#访问一次URL的流程" class="headerlink" title="访问一次URL的流程"></a>访问一次URL的流程</h4><p>首先通过查找本地或者外网DNS解析域名获得IP地址，然后生成一个HTTP请求；TCP分割HTTP报文，与此同时尝试建立与远程主机的TCP连接；为了建立TCP连接，需要通过IP、ARP、ICMP在网络层中寻址；找到子网后，Ethernet帮助我们以广播的形式把数据传到目的MAC地址，最后找到目的地的MAC所在，建立点对点的连接。TCP连接建立完成后服务端返回一个HTTP报文，里面夹带了HTML/CSS/JS，服务器渲染生成我们看到的页面。</p>
+<h4 id="TCP三次握手"><a href="#TCP三次握手" class="headerlink" title="TCP三次握手"></a>TCP三次握手</h4><p>首先客户端发出一个请求连接的包给服务端（SYN=1），包中有客户端的初始序列号；服务端收到这个包后，发出一个确认收到这个序号的包的确认包（SYN=1, ACK=1），并附上服务端的初始序列号给客户端；客户端收到之后发出确认，确认收到了这个初始序列号的包，同时在这个包里可以携带真正的通信的数据。</p>
+<h4 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h4><p>首先客户端发出连接释放请求包给客户端（FIN=1），包中有客户端的序列号；服务端收到这个包后，发出一个确认收到这个序号的包的确认包（ACK=1），但是可能还有数据没发完，只是发出确认收到了这个包，之后服务端可以继续发送数据；当服务端的数据彻底发送完毕之后，发出一个连接释放包（FIN=1）；客户端收到这个包后进入TIME_WAIT状态，等待2MSL（2个报文最大生存时间）后，客户端没有收到重发的连接释放包，说明服务端已经成功收到连接释放包，客户端进入closed状态；</p>
+<h4 id="TCP流量控制"><a href="#TCP流量控制" class="headerlink" title="TCP流量控制"></a>TCP流量控制</h4><p>流量控制针对的是发送方和接收方速度不匹配的问题。如果发送者发送数据过快，接收者来不及接收，那么就会有分组丢失。为了避免分组丢失，控制发送者的发送速度，使得接收者来得及接收，这就是流量控制。</p>
+<p>流量控制由滑动窗口协议实现。滑动窗口协议既保证了分组无差错、有序接收，也实现了流量控制。</p>
+<p>流量控制是由<strong>接收者</strong>控制的，它是控制发送者的发送速度从而使接收者来得及接收，防止分组丢失的。</p>
+<h4 id="TCP拥塞控制"><a href="#TCP拥塞控制" class="headerlink" title="TCP拥塞控制"></a>TCP拥塞控制</h4><p>拥塞控制是作用于<strong>网络</strong>的，它是防止过多的数据注入到网络中，避免出现网络负载过大的情况；</p>
+<p>常用的方法就是：</p>
+<ol>
+<li><p><strong>慢开始算法</strong>：发送方维持一个拥塞窗口，拥塞窗口的大小取决于网络的拥塞程度，并且动态地在变化。发送方的滑动窗口小于等于该拥塞窗口。</p>
+<p>慢开始算法的思路就是，不要一开始就发送大量的数据，先探测一下网络的拥塞程度，也就是说由小到大逐渐增加拥塞窗口的大小。每经过一个传输轮次，拥塞窗口cwnd就加倍。</p>
+<blockquote>
+<p>为了防止cwnd增长过大引起网络拥塞，还需设置一个慢开始门限ssthresh变量。ssthresh的用法如下：</p>
+<p>当cwnd&lt;ssthresh时，使用慢开始算法。<br>当cwnd&gt;ssthresh时，改用拥塞避免算法。<br>当cwnd=ssthresh时，慢开始与拥塞避免算法任意</p>
+</blockquote>
+</li>
+<li><p><strong>拥塞避免算法</strong>：拥塞避免算法让拥塞窗口缓慢增长，即每经过一个往返时间RTT就把发送方的拥塞窗口cwnd加1，而不是加倍。这样拥塞窗口按线性缓慢增长。</p>
+</li>
+<li><p><strong>快重传算法</strong>：快重传要求接收方在收到一个失序的报文段后就<strong>立即发出重复确认</strong>（为的是使发送方及早知道有报文段没有到达对方，可提高网络吞吐量约20%）而不要等到自己发送数据时捎带确认。快重传算法规定，发送方只要一连收到三个重复确认就应当立即重传对方尚未收到的报文段，而不必继续等待设置的重传计时器时间到期。</p>
+</li>
+<li><p><strong>快恢复算法</strong>：快重传配合使用的还有快恢复算法。当发送方连续收到三个重复确认时，就执行“<strong>乘法减小</strong>”算法，把ssthresh门限减半（为了预防网络发生拥塞）。但是接下去并不执行慢开始算法，考虑到如果网络出现拥塞的话就不会收到好几个重复的确认，所以发送方现在认为网络可能没有出现拥塞。所以此时不执行慢开始算法，而是将cwnd设置为ssthresh减半后的值，然后<strong>执行拥塞避免算法</strong>，使cwnd缓慢增大。</p>
+</li>
+</ol>
+<p><img src="https://pic4.zhimg.com/v2-3319d090787d8941cea25376e284679b_r.jpg" alt="preview"></p>
+<h4 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h4><ul>
+<li>TCP可以提供可靠的通信连接，UDP无连接，尽最大努力交付，不用维持复杂的连接状态。</li>
+<li>TCP只支持点对点通信，UDP支持一对一、一对多、多对一的通信模式。</li>
+<li>TCP只支持点对点通信，UDP支持一对一、一对多、多对一的通信模式。</li>
+<li>TCP的报头有20个字节，UDP只有8个字节。</li>
+</ul>
+<h4 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h4><ul>
+<li>基于TCP/IP通信协议</li>
+<li>可以传输很多类型/格式的数据对象</li>
+<li>无连接的协议</li>
+<li>无状态的协议，但是可以通过cookie、session机制来弥补</li>
+<li>明文传输，不安全，HTTPS可以解决</li>
+</ul>
+<h4 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h4><p>IOC是控制反转，最常用的方式是依赖注入，把对象的创建控制权交给IOC容器来管理。在项目启动的时候Spring会读取配置文件里面的bean节点，根据全限定类名使用反射new对象放到IOC容器里，接下来我们在代码里需要用到IOC容器里面的对象时，再通过DI注入（@Autowired）。</p>
+<h4 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h4><p>AOP是面向切面编程，使用了动态代理模式，能够将那些与业务无关，却为业务模块所共同调用的逻辑或责任封装起来，便于减少系统的重复代码，降低模块间的耦合度，并有利于未来的可扩展性和可维护性。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/Linux%E7%9B%B8%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/Linux%E7%9B%B8%E5%85%B3/" itemprop="url">Linux相关</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Linux相关"><a href="#Linux相关" class="headerlink" title="Linux相关"></a>Linux相关</h1><h2 id="1-linux的网络IO模型"><a href="#1-linux的网络IO模型" class="headerlink" title="1. linux的网络IO模型"></a>1. linux的网络IO模型</h2><ol>
+<li><p><strong>文件描述符</strong>：在Linux系统中一切皆可以看成是文件，文件又可分为：普通文件、目录文件、链接文件、设备文件、socket。文件描述符是内核为了高效管理已被打开的文件所创建的<strong>索引</strong>，它是一个非负整数，用于指代被打开的文件，所有执行I/O操作（包括网络socket操作）的系统调用都通过文件描述符。</p>
+</li>
+<li><p><strong>内核态和用户态</strong>：操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。为了保证用户进程不能直接操作内核，linux将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。</p>
+</li>
+<li><p><strong>recvfrom()调用</strong>：用来接收远程主机经指定的socket 传来的数据。</p>
+</li>
+</ol>
+<h3 id="IO模型"><a href="#IO模型" class="headerlink" title="IO模型"></a>IO模型</h3><p>对于一次IO访问（以read举例），数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。所以说包含了两个阶段：</p>
+<ul>
+<li>等待数据拷贝至内核 （区别在这里）</li>
+<li>将数据从内核拷贝到进程（同步IO在这个拷贝过程中都阻塞）</li>
+</ul>
+<p>因为这两个阶段，linux系统产生了5种网络IO模型：</p>
+<ul>
+<li>阻塞I/O：两个阶段都被block</li>
+<li>非阻塞I/O：用户进程不断的主动询问kernel数据准备好了没有。</li>
+<li>I/O多路复用：通过一种机制一个进程能同时等待多个文件描述符，而这些文件描述符（套接字描述符）其中的任意一个进入读就绪状态，select()函数就可以返回。</li>
+<li>异步I/O：用户进程发起read操作之后，立刻就可以开始去做其它的事。</li>
+<li>信号驱动I/O</li>
+</ul>
+<h3 id="多路复用之select、poll、epoll"><a href="#多路复用之select、poll、epoll" class="headerlink" title="多路复用之select、poll、epoll"></a>多路复用之select、poll、epoll</h3><p>elect，poll，epoll都是IO多路复用的机制。I/O多路复用就是通过一种机制，一个进程可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪），能够通知程序进行相应的读写操作。他们的本质都是同步IO，因为在读写事件准备就绪之后自己负责读写数据到用户空间，也就是说这个过程是阻塞的，而异步I/O则无需自己负责进行读写。</p>
+<p><img src="https://img-blog.csdnimg.cn/20190111184024145.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BhbmdlMTk5MQ==,size_16,color_FFFFFF,t_70" alt="img"></p>
+<p><strong>select()</strong>：所有的fd都放在一个数组中，每次调用select()都需要遍历这个<strong>数组</strong>，来从中找到就绪的fd。</p>
+<p><strong>poll()</strong>：所有的fd都放在一个链表中，每次调用select()都需要遍历这个<strong>链表</strong>，来从中找到就绪的fd。</p>
+<p><strong>epoll()</strong>：epoll无需遍历所有的fd，只需要遍历那些被内核IO事件通知异步唤醒而<strong>加入Ready队列的fd集合</strong>即可。epoll其实也需要epoll_wait来轮询就绪队列。</p>
+<h2 id="2-linux常用命令"><a href="#2-linux常用命令" class="headerlink" title="2. linux常用命令"></a>2. linux常用命令</h2><ol>
+<li>ps：显示系统的运行进程。</li>
+<li>top：默认按照CPU的占用情况，显示占用量较大的进程。</li>
+<li>grep：在给定的文件中正则匹配。</li>
+<li>cat：用于在标准输出（监控器或屏幕）上查看文件内容。</li>
+<li>chmod：用于改变文件和目录的权限。</li>
+<li>ifconfig：用于查看和配置Linux系统的网络接口。</li>
+<li>netstat：查看端口状态</li>
+</ol>
+<h2 id="3-死锁"><a href="#3-死锁" class="headerlink" title="3. 死锁"></a>3. 死锁</h2><p>死锁的四个必要条件：</p>
+<ol>
+<li>互斥条件：一个资源每次只能被一个进程使用。</li>
+<li>占有且等待：因请求资源而阻塞的进程不释放已获得的资源。</li>
+<li>不可强行占有：不能强行剥夺其他进程已获得的资源。</li>
+<li>循环等待：若干进程之间形成一种头尾相接的循环等待资源关系。</li>
+</ol>
+<p>死锁的预防：破坏上述四个条件</p>
+<p>死锁的避免：进程启动拒绝、资源分配拒绝</p>
+<p>死锁的接触：撤销进程、剥夺资源</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/JVM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/JVM/" itemprop="url">JVM</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><h2 id="1-内存区域"><a href="#1-内存区域" class="headerlink" title="1. 内存区域"></a>1. 内存区域</h2><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F.png" alt="img" style="zoom: 67%;" />
+
+<h4 id="线程私有内存："><a href="#线程私有内存：" class="headerlink" title="线程私有内存："></a>线程私有内存：</h4><ol>
+<li><p>程序计数器：指向当前线程所执行的字节码位置。</p>
+</li>
+<li><p>虚拟机栈：Java方法执行的内存模型，传递方法调用所需的数据。每执行一个方法都会创建一个栈帧，方法的执行与完成伴随着栈帧的出栈入栈。</p>
+<ul>
+<li><p>每个栈帧中包含局部变量表、操作数栈、动态链接、方法出口信息等。局部变量表包含基本数据类型、对象引用。</p>
+</li>
+<li><p>错误：StackOverflowError、OutOfMemoryError</p>
+</li>
+</ul>
+</li>
+<li><p>本地方法栈：作用和虚拟机栈几乎一致。虚拟机栈为Java方法服务，本地方法栈为Native方法服务。</p>
+</li>
+</ol>
+<h4 id="线程共享内存："><a href="#线程共享内存：" class="headerlink" title="线程共享内存："></a><strong>线程共享内存</strong>：</h4><ol>
+<li><p>堆：唯一目的就是存放对象实例，是垃圾收集器管理的主要区域。</p>
+<ul>
+<li>错误：OutOfMemoryError</li>
+</ul>
+</li>
+<li><p>方法区：存储已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码。是永久代的一种实现方式。在JDK1.8以后被元空间代替，元空间使用的是直接内存。</p>
+<ul>
+<li><p>class文件信息：包括<strong>类元信息</strong>和<strong>静态常量池</strong>。类元信息是class文件内容的一个框架，里面具体的内容通过静态常量池来存储。</p>
+</li>
+<li><p>运行时常量池：包含字面量（文本字符串、Final修饰的变量等）、符号引用。当Class文件被加载完成后，Java虚拟机会将静态常量池里的内容转移到动态常量池里，在静态常量池的符号引用中一些不能被重写的部分被转变为直接引用。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="直接内存（堆外内存）："><a href="#直接内存（堆外内存）：" class="headerlink" title="直接内存（堆外内存）："></a><strong>直接内存（堆外内存）</strong>：</h4><p>不属于JVM定义的内存区域，不由JVM管理和回收。NIO类可以直接使用Native函数库来分配堆外内存，然后通过一个存储在Java堆内的DirectByteBuffer对象作为对这块内存的引用，从而进行操作。</p>
+<h4 id="对象的创建："><a href="#对象的创建：" class="headerlink" title="对象的创建："></a>对象的创建：</h4><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/Java%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E8%BF%87%E7%A8%8B.png" alt="Java创建对象的过程" style="zoom:80%;" />
+
+<ol>
+<li>类加载检查：检查常量池，定位到这个类的符号引用，并且检查该类是否已被加载过。如果没有，则必须执行相应的类加载过程。</li>
+<li>分配内存：类加载完成后即可确定所需内存大小，从Java堆中划分出来。<ul>
+<li>分配方式：指针碰撞、空闲列表。</li>
+<li>并发问题，保证线程安全的方式：CAS+失败重试、TLAB</li>
+</ul>
+</li>
+<li>初始化零值：保证对象实例的字段不赋初始值就能直接使用。</li>
+<li>设置对象头：对象头包括对象所属类的元数据信息、对象的哈希码、对象的GC分代年龄等信息。</li>
+<li>执行init方法：执行new指令之后会接着执行init方法，创建对象。</li>
+</ol>
+<h4 id="对象的访问："><a href="#对象的访问：" class="headerlink" title="对象的访问："></a><strong>对象的访问</strong>：</h4><p>Java程序通过栈上的reference数据来访问堆上的具体对象。对象的访问方式由虚拟机的实现方式而定。目前主流的访问方式有使用句柄、直接指针两种。</p>
+<ol>
+<li>句柄：Java堆中划分出内存作为句柄池，栈中的reference存储对象的句柄地址，句柄中包含了对象的实例数据地址（堆）和类型数据地址（方法区）信息。</li>
+<li>直接指针：栈中的reference存储对象实例的地址，同时需要一个指针访问对象类型数据的信息。</li>
+</ol>
+<h2 id="2-类加载过程"><a href="#2-类加载过程" class="headerlink" title="2. 类加载过程"></a>2. 类加载过程</h2><p>所有的类都有类加载器加载，加载的作用就是将.class文件加载到虚拟机内存。系统加载Class类型的文件分三步：加载 —&gt;连接—&gt;初始化。连接过程也分三步：验证—&gt;准备—&gt;解析。</p>
+<img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.png" alt="类加载过程" style="zoom:67%;" />
+
+<h4 id="加载："><a href="#加载：" class="headerlink" title="加载："></a>加载：</h4><ol>
+<li>通过类名来获得定义此类的二进制字节流。</li>
+<li>将字节流代表的静态存储结构转换为方法区的<strong>运行时</strong>数据结构。</li>
+<li>在Java堆中生成一个代表该类的java.lang.Class类对象，作为方法区这些数据的访问入口。</li>
+</ol>
+<blockquote>
+<p>加载和连接阶段的部分内容是交叉进行的。</p>
+</blockquote>
+<h4 id="连接："><a href="#连接：" class="headerlink" title="连接："></a>连接：</h4><ol>
+<li><p>验证：文件格式验证 —&gt; 元数据验证 —&gt; 字节码验证 —&gt; 符号引用验证 。</p>
+</li>
+<li><p>准备：正式为类变量分配内存并设置类变量初始值，这些内存都将在方法区中分配。此时的“初始值”指的是当前数据类型默认的零值，初始化阶段才会赋我们设置的初始值。</p>
+</li>
+<li><p>解析：虚拟机将常量池内的符号引用替换为直接引用（内存地址指针/偏移量）。</p>
+</li>
+</ol>
+<h4 id="初始化："><a href="#初始化：" class="headerlink" title="初始化："></a>初始化：</h4><p>初始化阶段是执行类构造器clinit()方法的过程，该方法为带锁线程安全，所以可能引发死锁。</p>
+<h2 id="3-类加载器"><a href="#3-类加载器" class="headerlink" title="3. 类加载器"></a>3. 类加载器</h2><p>JVM内置3个重要的类加载器，BootstrapClassLoader、ExtensionClassLoader、AppClassLoader。</p>
+<ul>
+<li>启动类加载器：java.*开头的类均被Bootstrap ClassLoader加载。</li>
+<li>扩展类加载器：如javax.*开头的类。</li>
+<li>应用程序类加载器：它负责加载用户类路径（ClassPath）所指定的类，一般情况下这个就是程序中<strong>默认</strong>的类加载器。</li>
+<li>用户自定义类加载器：一般用不到，应用服务器大都使用了自定义的ClassLoader技术。</li>
+</ul>
+<h4 id="双亲委派模型："><a href="#双亲委派模型：" class="headerlink" title="双亲委派模型："></a>双亲委派模型：</h4><p>每一个类都有一个对应的ClassLoader。系统中的ClassLoader在协同工作时默认采用双亲委派模型。</p>
+<ol>
+<li>判断类是否被加载过，如果已经被加载过则直接返回，否则才会尝试加载。</li>
+<li>加载的时候，子类加载器不会自己尝试加载这个类，会把请求委派给该父类加载器的loadClass()处理，因此所有的请求最终都会传送到顶层的BootstrapClassLoader中。只有当父类加载器无法处理时，子类加载器才会去尝试加载。</li>
+<li>当父类加载器为null时，会使用启动类加载器BootstrapClassLoader作为父类加载器。</li>
+</ol>
+<blockquote>
+<p>这里的“双亲”表示的是“父类”的意思。另外类加载器之间的父子关系也不是通过继承来体现的，而是由“优先级”来决定。另外这里说的都是类的加载，与对象无关。</p>
+</blockquote>
+<img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/classloader_WPS%E5%9B%BE%E7%89%87.png" alt="ClassLoader" style="zoom:75%;" />
+
+<h4 id="双亲委派模型的好处："><a href="#双亲委派模型的好处：" class="headerlink" title="双亲委派模型的好处："></a>双亲委派模型的好处：</h4><p>保证了Java程序的稳定运行，避免了类的重复加载，保证了Java API核心不被篡改。</p>
+<h2 id="4-垃圾回收"><a href="#4-垃圾回收" class="headerlink" title="4. 垃圾回收"></a>4. 垃圾回收</h2><h4 id="区域分配："><a href="#区域分配：" class="headerlink" title="区域分配："></a>区域分配：</h4><p>为了更好的回收/分配内存，Java堆可分为新生代和老年代，又可细分为Eden、From Survivor(s0)、To Survivor(s1)，Tentired。Tentired属于老年代。</p>
+<p>经过一次MinorGC后，Eden区和s0区将被清空，此时s0和s1将交换角色（复制算法）。</p>
+<img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3%E5%A0%86%E7%BB%93%E6%9E%84.png" alt="img" style="zoom:80%;" />
+
+<ol>
+<li><p><strong>对象优先在Eden区分配</strong>。</p>
+<p>当Eden区没有足够空间进行分配时，虚拟机将发起一次minor GC。</p>
+<ul>
+<li>Minor GC：新生代的垃圾收集，很频繁。</li>
+<li>Major GC/Full GC：老年代的垃圾收集，伴随着至少一次的minor GC。</li>
+</ul>
+<p>如果GC期间发现Survivor空间也不足，虚拟机通过<strong>分配担保机制</strong>将新生代对象提前转移至老年代。</p>
+</li>
+<li><p><strong>大对象直接进入老年代</strong>。避免由于分配担保机制带来的复制。</p>
+</li>
+<li><p><strong>长期存活的对象进入老年代</strong>。</p>
+<p>对象在Eden区域分配，在一次minor GC之后，如果对象还存活，则会进入s1区，他的年龄会加1。每经历一次minor GC年龄就增长1岁，当年龄增长到一定程度（默认15岁），则会进入老年代中。</p>
+</li>
+<li><p>动态年龄阈值判定。</p>
+<p>为了更好的适应内存情况，如果survivor空间中相同年龄的所有对象所占空间的总和大于Survior空间的一半，则年龄大于或等于该年龄的对象直接进入老年代。</p>
+</li>
+</ol>
+<h4 id="判断无用的类："><a href="#判断无用的类：" class="headerlink" title="判断无用的类："></a>判断无用的类：</h4><p>需要同时满足以下3个条件才算是无用的类：</p>
+<ol>
+<li>所有的实例都被回收，即Java堆中不存在该类的任何实例。</li>
+<li>加载该类的ClassLoader已被回收。</li>
+<li>该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。</li>
+</ol>
+<h4 id="判断对象死亡："><a href="#判断对象死亡：" class="headerlink" title="判断对象死亡："></a>判断对象死亡：</h4><p>对Java堆垃圾的回收第一步需要判断哪些对象已经死亡。</p>
+<ol>
+<li><p>引用计数法：给对象添加一个引用计数器，每当有一个地方引用该对象，计数器就加1；当引用失效就减1。任何时候计数器为0的对象就是不可能再被使用的。（很难解决对象之间相互引用的问题）</p>
+</li>
+<li><p>可达性分析算法：和GC Roots有直接或间接关联的对象都是有效的，没有关联的就是无效对象。可作为GC Roots的对象包括以下4种：</p>
+<ul>
+<li>虚拟机栈中引用的对象</li>
+<li>本地方法栈中引用的对象</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+</ul>
+</li>
+<li><p>引用分类</p>
+<ul>
+<li><p>强引用：最普遍使用，不会被垃圾回收器回收。</p>
+<ul>
+<li>如果一个强引用为全局变量，需要在不使用它时把它赋值为null，因为强引用不会被回收。</li>
+</ul>
+</li>
+<li><p>软引用：具有软引用的对象，当内存空间不足时会被回收（可以用来缓存数据）。与引用队列联合使用。</p>
+</li>
+<li><p>弱引用：无论空间是否足够，都会回收该对象的内存。与引用队列联合使用。</p>
+</li>
+<li><p>虚引用：和没有引用一样，随时可能被回收。与引用队列联合使用。</p>
+<blockquote>
+<p>创建一个引用队列，当引用的对象将要被JVM回收时，会将这个引用加入到引用队列中，所以通过引用队列可以了解JVM垃圾回收情况。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="垃圾收集算法："><a href="#垃圾收集算法：" class="headerlink" title="垃圾收集算法："></a>垃圾收集算法：</h4><ol>
+<li><strong>标记-清除算法</strong>：分为两个阶段，首先标记出所有需要被回收的对象，在标记完成后统一回收被标记的对象。最基础的收集算法，后续算法都是对其不足的改进得到。该算法存在的问题：<ul>
+<li>效率问题</li>
+<li>空间问题（标记清除后产生大量不连续的碎片）</li>
+</ul>
+</li>
+<li><strong>复制算法</strong>：为了解决效率问题。将内存一分为二，每次只使用其中一块，当使用完后将还存活的对象复制到另一块区，然后将使用的空间一次清理掉。每次回收都是对空间的一半进行回收。</li>
+<li><strong>标记-整理算法</strong>：标记过程与标记-清除算法一样，然后让所有存活的对象向一端移动，然后清理掉端边界以外的内存。</li>
+<li><strong>分代收集算法</strong>：根据各个年代的特点选择合适的垃圾收集算法。<ul>
+<li>新生代：每次收集都有大量对象死去，所以可以选择<strong>复制算法</strong>，每次只需要复制少量对象即可完成GC。</li>
+<li>老年代：存活几率比较高，而且没有额外空间，必须选择<strong>标记-清除或者标记-整理</strong>算法进行GC。</li>
+</ul>
+</li>
+</ol>
+<h4 id="垃圾收集器："><a href="#垃圾收集器：" class="headerlink" title="垃圾收集器："></a>垃圾收集器：</h4><table>
+<thead>
+<tr>
+<th>种类</th>
+<th>范围</th>
+<th>单/多线程</th>
+<th>处理算法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Serial</td>
+<td>新生代（一代）</td>
+<td>单线程</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>ParNew</td>
+<td>新生代（二代）</td>
+<td>多线程</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>Parallel Scanvenge</td>
+<td>新生代（三代）</td>
+<td>多线程</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>Serial Old</td>
+<td>老年代（一代）</td>
+<td>单线程</td>
+<td>标记-整理</td>
+</tr>
+<tr>
+<td>Parallel Old</td>
+<td>老年代（二代）</td>
+<td>多线程</td>
+<td>标记-整理</td>
+</tr>
+<tr>
+<td>CMS</td>
+<td>老年代（三代）</td>
+<td>多线程</td>
+<td>标记-清除</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>整个Java堆（四代）</td>
+<td>多线程</td>
+<td>复制</td>
+</tr>
+</tbody></table>
+<h4 id="G1垃圾收集器："><a href="#G1垃圾收集器：" class="headerlink" title="G1垃圾收集器："></a>G1垃圾收集器：</h4><ol>
+<li>JDK1.7后全新的回收器，用于取代CMS。CMS在Minor GC时会暂停所有应用线程，G1的初衷是为了尽量缩短处理超大堆时产生的停顿，满足用户设定的gc停顿时间。</li>
+<li>G1不再把内存区域分成Eden、Survior、old三大块，而是把堆内存<strong>切分成很多个固定大小的区域</strong>（Region）。每个区域都是一块连续的内存，默认均分成2048份。G1最大的特点就是高效的执行回收，优先去回收那些大量对象可回收的region。</li>
+<li>每个Region都被标记了Eden、Survivor、Old。每次GC存活的对象从一个Region复制到另一个Region。</li>
+<li>G1提供了两种GC模式，Young GC和Mixed GC，两种都是Stop The World（所有线程会被暂停）。</li>
+<li><strong>Young GC</strong>会回收所有Eden以及Survivor区，并且将存活对象复制到Old区以及另一部分的Survivor区。</li>
+<li><strong>Mixed GC</strong>不是full GC，它只能回收部分老年代的Region。当Mixed GC的速度实在跟不上程序分配内存的速度时，会使用Serial Old GC（full GC）来收集整个Java堆。</li>
+<li>G1回收流程：<ul>
+<li><strong>初始标记</strong>：STW，标记出从GC Roots开始直接可达的对象。</li>
+<li><strong>并发标记</strong>：不暂停其他线程，从GC Roots开始对堆中对象进行可达性分析，一层一层的标记出存活对象。</li>
+<li><strong>最终标记</strong>：STW，并发标记的过程中用户程序可能修改了对象引用关系，最终标记标记出那些在并发标记阶段发生变化的对象，使它们能正确被回收。</li>
+<li><strong>筛选回收</strong>：STW，首先对各个Regin的回收价值和成本进行排序，根据用户所期待的GC停顿时间指定回收计划，回收一部分Region。</li>
+</ul>
+</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/Java%E9%87%8D%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/Java%E9%87%8D%E7%82%B9/" itemprop="url">Java重点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Java重点"><a href="#Java重点" class="headerlink" title="Java重点"></a>Java重点</h1><h2 id="1-基础"><a href="#1-基础" class="headerlink" title="1. 基础"></a>1. 基础</h2><ol>
+<li><p><strong>静态变量/方法</strong>：主要考虑的是使用时不需要再实例化一个类，方便在没有创建对象的情况下调用。</p>
+</li>
+<li><p><strong>static/final关键字</strong>：static强调程序运行期间变量始终存在于内存；final强调变量只能被赋值一次。</p>
+</li>
+<li><p><strong>基本数据类型/包装数据类型</strong>：有8个，每个包装数据类型都封装了相应的基本数据类型，并提供了一些有用的方法。例如int和Integer，char和Character。（拆箱装箱）</p>
+</li>
+<li><p><strong>引用数据类型</strong>：除去以上的8种基本数据类型，其他的都是引用类型，也就是Object。分为5种：类，接口，数组，枚举，注解。</p>
+</li>
+<li><p><strong>对象引用</strong>：reference，类似指针，用来指向一个实例对象（内存空间）的标识符，从而操纵对象。</p>
+</li>
+<li><p><strong>向上转型</strong>：父类引用指向子类对象，子类引用不能指向父类对象，例：Father f1 = new Son()。</p>
+<ul>
+<li>意义：失去子类独有的方法，但是子类可以调用重写后的父类方法，把子类看作父类进行使用，只能做出父类的行为。</li>
+</ul>
+</li>
+<li><p><strong>向下转型</strong>： Son s1 = (Son) f1—— 子类引用s1指向一个子类对象，父类引用f1还是指向子类对象。</p>
+</li>
+<li><p><strong>接口/抽象类</strong>：抽象类是对根源的抽象，而接口是对动作的抽象。抽象类主要是用来抽象类别，接口主要是用来抽象方法功能。当你关注事物的本质的时候，用抽象类；当你关注一种操作的时候，用接口。</p>
+<p>接口里面只能对方法进行声明，抽象类既可以对方法进行声明也可以对方法进行实现；抽象类除了无法被实例化，和普通的类几乎一样；一个类只能继承一个抽象类，但能实现多个接口。</p>
+</li>
+<li><p><strong>重载(Overload)/重写(Override)</strong>：Overload指的是一个类中可以存在多个同名不同参数的方法；Override指的是在子类对父类同名方法进行覆盖，参数必须相同。</p>
+</li>
+<li><p><strong>多态</strong>：多态指一个接口可以有多种实现的方式/一个类可以实现多个接口，以及override/overload。</p>
+</li>
+<li><p><strong>泛型</strong>：把明确类型的工作推迟到创建对象或调用方法的时候（反射机制）。编译器编译完成后，生成的.class文件中不含泛型（泛型擦除）。可以应用在抽象类中减少重复代码。通过extends/super限定通配符上下限。</p>
+</li>
+<li><p><strong>String/StringBuilder/StringBuffer</strong>：</p>
+<ul>
+<li>String对象不可变，StringBuffer/StringBuilder对象可变。</li>
+<li>String不可变所以线程安全，StringBuffer对方法加了同步锁所以线程安全，StringBuilder非线程安全。</li>
+</ul>
+</li>
+<li><p><strong>super关键字</strong>：每当创建子类的实例时，父类的实例被隐式创建，由 super 关键字引用变量引用。super 可以用来引用直接父类的实例变量，可以用来调用父类方法。</p>
+<p>调用子类构造方法之前会先调用父类的无参构造方法，目的是帮助子类做初始化工作。</p>
+</li>
+<li><p><strong>this关键字</strong>：当前类对象的引用；可以在一个构造方法中通过this(params…)来调用当前类的其他构造方法，类似用super(params…)来调用父类构造方法。</p>
+</li>
+<li><p><strong>异常处理</strong>：Error、Exception，都继承自Throwable。</p>
+<ul>
+<li>RuntimeException：编译能够通过的异常，一般由程序逻辑错误引起。</li>
+<li>File/IOException：必须处理的异常。必须使用try-catch捕获它，否则程序不能编译通过。</li>
+</ul>
+</li>
+<li><p><strong>字节流和字符流IO</strong>：Blocking IO</p>
+<ul>
+<li>面向字节（Byte）的InputStream和OutputStream</li>
+<li>面向字符（Character）的Reader和Writer（其实也是stream）</li>
+</ul>
+</li>
+<li><p><strong>NIO(Non-blocking IO)</strong>：</p>
+<img src="https://lh4.googleusercontent.com/proxy/TJcB6BsxgccvnilEnwC9fp1WXrVYt21vU7o0tkzx7_8cCHJLf5ogmyArW35reXwfEMaLiA-mDICEq6D2FQ" alt="“buffer selector channel”的图片搜索结果" style="zoom:50%;" />
+
+<ul>
+<li><p>IO是面向流的处理，NIO是面向块（缓冲区）的处理。</p>
+</li>
+<li><p>采用多路复用模型。</p>
+</li>
+<li><p>三个核心部分组成：buffer（缓冲区）、channel（管道）、selector（选择器）。</p>
+<ul>
+<li><p>Buffer就是一块内存区域，存有socket/file的原始数据，主要跟channel交互。</p>
+</li>
+<li><p>Channel是对socket/file的一层封装，方便selector对socket的管理。</p>
+</li>
+<li><p>Selector这个类是select/poll/epoll的外包装类。在不同的平台上，底层的实现有所不同。</p>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>进程之间的Socket通信相当于一种IO。当交互很多，数据很少时，我们也能使用多线程的方式处理IO，但创建和切换线程需要的资源太多，所以多路复用机制是更好的选择。</p>
+<p>linux中提供了select/poll/epoll来为我们实现多路复用机制。select/poll/epoll可以帮助服务端把所有的客户端socket连接管理起来，同时观察许多socket的IO事件，由此我们就可以逐个处理socket上准备好的IO事件，我们把这个轮询的过程都交给select/poll/epoll来实现了。</p>
+</blockquote>
+</li>
+<li><p><strong>深拷贝/浅拷贝</strong>：都需要实现 Cloneable 接口，然后重写clone()方法。</p>
+<ul>
+<li><p>浅拷贝：对基本数据类型进行值传递，对引用数据类型进行引用传递般的拷贝。</p>
+</li>
+<li><p>深拷贝：对基本数据类型进行值传递，对引用数据类型，创建一个新的对象，并复制其内容。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>==/equals()</strong>：</p>
+<ul>
+<li>基本数据类型：==比较的是他们的值，equals()一般被重写为值比较。</li>
+<li>引用数据类型：==和equals()比较的都是内存地址。</li>
+</ul>
+<blockquote>
+<p>equals()默认比较内存地址，但很多类重写了equals方法，比如String、Integer把它变成了值比较。</p>
+</blockquote>
+</li>
+<li><p><strong>hashCode()/equals()</strong>：我们在比较对象是否相等时，首先比较他们的hashCode()，然后才是用equals()来对他们的内存地址进行比较。所以我们将某个类的equals()重写为值比较时，同时需要重写hashCode()。</p>
+</li>
+<li><p><strong>Java反射机制</strong>：当每个类被装载时，会在Java堆上自动创建一个对应的<strong>Class类</strong>对象（反射类），用来实例化这个类的所有对象，我们可以通过反射机制得到一个实例对象的Class类对象。可以应用在泛型，另外可以使用  Class c=Class.forName(“MyObject”)来获得Class类对象，然后用Class类的newInstance()来创建实例对象，这种方式被应用于工厂模式。另外JDK使用反射机制实现动态代理。</p>
+</li>
+</ol>
+<h2 id="2-容器"><a href="#2-容器" class="headerlink" title="2. 容器"></a>2. 容器</h2><ol>
+<li>Collection是集合的上级<strong>接口</strong>，Set和List继承自Collection。（集合只能存储引用类型）</li>
+<li>Collections是集合的<strong>工具类</strong>，提供了一系列对集合类进行操作的静态方法，如对集合排序、最大最小等操作。</li>
+<li>ArrayList线程不安全，每次扩容0.5倍；Vector线程安全，每次扩容1倍（淘汰）。</li>
+<li>HashSet实际上封装了HashMap，键是要存储的元素，值是一个Object对象。LinkedHashSet/Treeset同理。</li>
+<li>HashMap线程不安全；HashTable线程安全（淘汰）。</li>
+<li>哈希表：底层是数组 + 链表/红黑树。当链表达到一定长度时（8）变为红黑树。</li>
+<li>迭代器Iterator代替了Enumeration。Iterator线程安全，因为当一个集合被遍历的时候，它会阻止其他线程去修改集合。</li>
+<li>Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。</li>
+<li>ConcurrentHashMap、CopyOnWriteArrayList加锁粒度小：他们用各种的方式来实现线程安全，比如ConcurrentHashMap用了锁分段技术、volatile等方式来实现线程安全。</li>
+<li>List因为元素有序且允许插入重复值，可以通过随机访问/顺序访问很快的知道元素的位置；但Set和Map因为元素无序，为了更好的查找元素，产生了哈希表和红黑树两种实现方式。</li>
+</ol>
+<h4 id="List：元素有序"><a href="#List：元素有序" class="headerlink" title="List：元素有序"></a>List：元素有序</h4><p>ArrayList：底层用数组实现，所以查询速度快，增删速度慢。</p>
+<p>LinkedList：底层用双向链表实现，所以查询速度慢，增删速度快。Stack和Queue可以由LinkedList实现。</p>
+<p>CopyOnWriteArrayList：在写/修改的时候给原数组加锁，并复制出一个新数组，修改的操作在新数组中完成，最后把原数组指针指向新数组，解锁。只能保证数据的最终一致性，不能保证数据的实时性，因为对于读-写操作，并没有对数组设读锁，只有在写操作完成后，读操作的值才会发生变化。为什么不用volatile修饰？因为这只是个对象引用，volatile并没有修饰到数组中的元素。</p>
+<h4 id="Set：元素不重复"><a href="#Set：元素不重复" class="headerlink" title="Set：元素不重复"></a>Set：元素不重复</h4><p>HashSet：基于哈希表，存储自定义类对象时需要重写hashCode()和equals()方法。</p>
+<ul>
+<li>LinkedHashSet：基于哈希表和链表，散列到哈希表的同时使用一个链表保存次序。</li>
+</ul>
+<p>TreeSet：基于红黑树，等于现有节点的元素不存储。自定义类应实现Comparable接口，重写comparaTo方法。</p>
+<p>CopyOnWriteSet：实际上封装了CopyOnWriteArrayList。</p>
+<h4 id="Map：键值映射"><a href="#Map：键值映射" class="headerlink" title="Map：键值映射"></a>Map：键值映射</h4><p>HashMap：基于哈希表，存储自定义类对象时同样需要重写hashCode()和equals()。</p>
+<ul>
+<li>LinkedHashMap：基于哈希表和链表，使得存取有序。</li>
+</ul>
+<p>TreeMap：基于红黑树，需要比较所以自定义类需要实现Comparable接口。（有序）</p>
+<p>ConcurrentHashMap：基于哈希表。ConcurrentHashMap通过锁分段技术和volatile实现同步；</p>
+<ul>
+<li>一个ConcurrentHashMap实例中包含一个由多个Segment实例组成的数组（一个Segment就相当于一个小哈希表），一个Segment实例又包含多个桶，一个桶包含一条由多个HashEntry 对象连接起来的链表。</li>
+<li>Segment类继承自ReentrantLock类，所以可以在多个不同Segment上同步进行写操作。</li>
+<li>ConcurrentHashMap的value域被volatile修饰，可以保证线程的读操作可以读到最新的值，所以读操作不需要上锁。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/Java%E5%B9%B6%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/03/17/Java%E5%B9%B6%E5%8F%91/" itemprop="url">Java并发</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Java并发"><a href="#Java并发" class="headerlink" title="Java并发"></a>Java并发</h1><h2 id="1-基础"><a href="#1-基础" class="headerlink" title="1. 基础"></a>1. 基础</h2><ol>
+<li><p><strong>并发/并行</strong>：并发是多个线程轮流使用CPU的一个核，并行是多个线程同时使用CPU的多个核。</p>
+</li>
+<li><p><strong>同步/异步</strong>：用来描述被调用方。在调用方发出请求后，该调用是否立马返回。</p>
+</li>
+<li><p><strong>阻塞/非阻塞</strong>：用来描述调用方。在调用返回之前，调用方的当前线程是否挂起。</p>
+</li>
+<li><p><strong>线程间的通信方式</strong>：共享内存、锁机制、信号量、信号、wait/notify。</p>
+</li>
+<li><p><strong>进程间的通信方式</strong>：消息队列、Socket、管道、信号、信号量、共享内存。</p>
+</li>
+<li><p><strong>线程/进程</strong>：进程是系统分配资源的基本单位，线程是调度CPU的基本单位。</p>
+</li>
+<li><p>JVM中多个线程共享进程的堆和方法区资源。</p>
+</li>
+<li><p>JVM中每个线程都有自己的程序计数器、虚拟机栈、本地方法栈。</p>
+</li>
+<li><p><strong>协程</strong>：协程运行在线程中，协程没有线程的上下文切换消耗，有原子操作性。例：Java的Foreach迭代器。</p>
+</li>
+<li><p><strong>创建线程的三种方式</strong>：继承Thread类（实际上实现了Runnable接口）、实现Runnable、实现Callable。</p>
+</li>
+<li><p><strong>Thread和Runnable</strong>：Thread是多个线程分别完成自己的任务，Runnable是多个线程共同完成一个任务。Runnable可以很容易的实现资源共享。</p>
+</li>
+<li><p><strong>Runnable和Callable</strong>：功能相似，Callable的call()函数有返回值，而Runnable的run()函数没有。</p>
+</li>
+<li><p><strong>线程的6种状态</strong>：NEW、RUNNABLE、BLOCKED、WAITING、TIME_WATING、TERMINATED</p>
+</li>
+<li><p><strong>start()和run()</strong>：start()是Thread类用来异步启动线程的一个方法，主线程立刻返回，该启动的线程不会马上运行，会放到等待队列中等待CPU调度，只有线程被真正调度时才会调用run()方法执行。</p>
+</li>
+<li><p><strong>wait()和sleep()</strong>：sleep()让正在执行的线程让出CPU，但不会释放锁；wait()是指当前线程暂时释放资源锁，当调用了notify()或者wait时间到了时线程被唤醒，可以去参加锁的竞争。wait()只能在同步方法或同步块中使用。</p>
+</li>
+<li><p><strong>join()</strong>：表示当前线程等待这个线程结束后才可继续。主线程调用t.join()时，主线程进入阻塞状态，只有当线程t结束了，才会进入可运行状态。</p>
+</li>
+<li><p><strong>yield()</strong>：Thread类的方法，使一个线程让出CPU，让一个running状态的线程转入runnable。</p>
+<img src="https://img-blog.csdn.net/20150309140927553" alt="img" style="zoom:90%;" /> 
+</li>
+<li><p><strong>线程安全</strong>：一个方法或者一个实例对象（资源）可以在多线程环境中使用而不会出现问题。</p>
+</li>
+<li><p><strong>Happens-Before原则</strong>：用来判断是否线程安全。</p>
+</li>
+<li><p><strong>实现线程安全的三种方式</strong>：</p>
+<ul>
+<li>使对象不可变。</li>
+<li>不在线程中共享对象。</li>
+<li>对对象使用同步机制，使其具有原子性。但同步机制会带来一定的串行化。</li>
+</ul>
+</li>
+<li><p><strong>Java同步机制</strong>：</p>
+<ul>
+<li>Synchronized关键字：即Java内置锁，可以锁住一个对象/方法/代码块。</li>
+<li>Lock接口实现类：API级别的自旋锁，比Synchronized更灵活，AQS实现。</li>
+<li>Semaphore/CountDownLatch/CyclicBarrier/Phaser：信号量，AQS实现。</li>
+<li>Atomic：原子变量，是粒度最细的锁，使用CAS算法，不需要挂起和重新调度线程。</li>
+<li>Volatile：特殊，保证可见性和有序性，不保证原子性。</li>
+</ul>
+<blockquote>
+<p>线程同步的目的是为了防止多个线程访问同一个资源时对资源的破坏。</p>
+<p>对于同步，要时刻清醒在哪个对象上同步。每个对象都有且仅有一个锁。</p>
+</blockquote>
+</li>
+<li><p><strong>并发出现的问题</strong>：原子性问题，可见性问题，有序性问题。</p>
+</li>
+<li><p><strong>JUC</strong>：java.util.concurrent包，提供了大量工具帮助编写多线程程序。</p>
+</li>
+<li><p><strong>Synchronized关键字</strong>：保证线程之间访问资源的同步性。可修饰实例方法、静态方法、代码块、类。</p>
+</li>
+<li><p><strong>Volatile关键字</strong>：保证可见性（数据在寄存器与主存中的值不一致），防止指令的重排序，但不保证原子性。只能用于变量。</p>
+<blockquote>
+<p>例如多线程进行count++，即使使用volatile修饰count，保证了每次获取到的值是最新的，但由于volatile不能保证原子性，即count++这个操作涉及到的获取值、自增、赋值操作不能同时完成，所以count++仍然可能得到错误的结果。</p>
+</blockquote>
+</li>
+<li><p><strong>ThreadLocal</strong>：每个访问该变量的线程都会有一份该变量的本地副本，互不影响。</p>
+<ul>
+<li>每个Thread对象都持有一个TreadLocalMap类型的对象，它包含多个Entry/K-V对象，key是ThreadLocal对象本身，value是要存储的对象。（ThreadLocal本身并不储存值，而是作为key来获取value）</li>
+<li>内存泄漏：由于ThreadLocalMap的生命周期跟Thread一样长，如果没有手动删除对应key就会导致内存泄漏。</li>
+</ul>
+</li>
+<li><p><strong>CAS</strong>：Compare and Swap，线程在更新数据之前先比较原数据是否变化，如果没有变化则更新数据。</p>
+<blockquote>
+<p>ABA问题：线程1读取值为A的变量；此时线程2读取并修改该变量为B，再修改成A；此时线程1进行修改操作，并不知晓该变量已经发生了变化。解决办法：每次变量更新都加上版本号。</p>
+</blockquote>
+</li>
+<li><p><strong>Atomic</strong>：原子类，当多个线程一起执行，一个原子操作一旦开始就不会被其他线程干扰。主要使用了CAS算法 + native + volatile方法来保证原子性，避免synchronized的高开销。</p>
+</li>
+<li><p><strong>AQS</strong>：AbstractQueuedSynchronizer，用来构建锁和同步器的框架。</p>
+<ul>
+<li><p>AQS定义了两种资源共享的方式：独占（ReentrantLock）、共享（CountDownLatch/CyclicBarrier）。</p>
+</li>
+<li><p>AQS对象有两个核心变量：state变量代表了加锁的状态；另一个变量记录当前拿到锁的是哪个线程。</p>
+</li>
+<li><p>ReentrantLock加锁的过程其实就是用CAS将state值加1。</p>
+</li>
+<li><p>试图获得锁失败的线程会进入AQS的一个阻塞队列（双向链表）。等待队列通过volatile修饰，保证多线程之间的可见性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>CountdownLatch</strong>：同步辅助工具类，用于一个线程等待一组其它线程执行完毕。（一等多）</p>
+<ul>
+<li>await()方法：调用这个方法的线程会被阻塞。</li>
+<li>countdown()方法：调用这个方法会使计数器减一，当计数器的值为0时，因调用await()方法被阻塞的线程会被唤醒，继续执行。</li>
+</ul>
+</li>
+<li><p><strong>CyclicBarrier</strong>：同步辅助工具类，用于一组线程间相互等待至某同步点。（互相等）</p>
+</li>
+<li><p><strong>ThreadPool</strong>：线程池，预先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程来处理请求。可以通过ThreadPoolExecutor来创建。 </p>
+<ul>
+<li>提交一个任务给线程池，在核心线程没满时，创建一个核心线程处理任务，否则放入一个阻塞队列中等待；如果阻塞队列也满了，则会创建一个非核心线程处理任务；如果达到了线程池规定的最大线程数，直接采用拒绝策略。（最大线程数 = 核心线程数 + 非核心线程数）</li>
+</ul>
+</li>
+<li><p><strong>分布式锁</strong>：当我们有多个JVM实例在服务器端运行时，Java提供的原生锁机制会失效，所以我们要保证所有JVM实例用的同一个锁，即分布式锁。</p>
+</li>
+</ol>
+<h2 id="2-Java-内存模型"><a href="#2-Java-内存模型" class="headerlink" title="2. Java 内存模型"></a>2. Java 内存模型</h2><ol>
+<li><p>JMM是一个抽象的概念，描述了一组规范，JMM规范了JVM与计算机内存之间是如何协同工作的：规定了一个线程如何/何时可以看到由其他线程修改过后的共享变量的值，以及在需要时如何同步的访问共享变量。</p>
+</li>
+<li><p>Java的多线程之间是<strong>通过共享内存进行通信</strong>的，而由于采用共享内存进行通信，在通信过程中会存在一系列问题，而JMM就是围绕着多线程通信以及与其相关的一系列特性（可见性、原子性、有序性）而建立的模型。JMM定义了一些语法集，这些语法集<strong>映射</strong>到Java语言中就是volatile、synchronized等关键字。</p>
+</li>
+<li><p><strong>Java线程间的通信</strong>：首先线程A把工作内存中更新过的共享变量刷新到主内存中，然后线程B到主内存中读取线程A更新的共享变量。</p>
+</li>
+<li><p>为了实现主内存与工作内存的具体交互，JMM定义了8种操作。</p>
+<ul>
+<li>lock、unlock、read、load、use、assign、store、write</li>
+</ul>
+<img src="https://img-blog.csdn.net/20180522220730109" alt="img" style="zoom:60%;" />
+</li>
+<li><p><strong>可见性</strong>：某个线程修改共享变量，其他线程能够看到（所有线程的工作内存和主内存的共享变量值与之同步）。可以通过声明final/volatile/synchronized实现可见性。若未声明，可能导致每个线程的工作内存都拥有这个共享变量的私有拷贝。</p>
+</li>
+<li><p><strong>有序性</strong>：CPU会对程序指令进行重排序，重排序后依然可以保证线程内的代码依语义顺序执行，但会使得并发的线程间乱序执行非同步的代码，即多线程程序的语义会被打破（变量在线程间存在的关联关系会被重排序打乱）。volatile/synchronized可维持某块代码相对有序。</p>
+</li>
+<li><p><strong>原子性</strong>：一个操作或者多个操作要么全部执行，要么不执行。多个线程同时在共享对象上更新变量，可以用原子方式执行操作，同步块技术。</p>
+</li>
+<li><p><strong>内存屏障</strong>：Java通过内存屏障保证底层操作的有序性和可见性。</p>
+</li>
+<li><p><strong>volatile关键字语义</strong>：</p>
+<ul>
+<li>保证可见性</li>
+<li>保证有序性：禁止进行指令重排序</li>
+</ul>
+</li>
+</ol>
+<h2 id="3-锁的分类"><a href="#3-锁的分类" class="headerlink" title="3. 锁的分类"></a>3. 锁的分类</h2><p>悲观锁和乐观锁不特指某个锁，而是并发情况下的两种不同策略。悲观锁阻塞事务，乐观锁回滚重试。</p>
+<p><strong>悲观锁</strong>：每次线程拿数据时都认为数据会被修改，所以每次线程拿数据的时候都会给数据上锁。用于多写。</p>
+<p><strong>乐观锁</strong>：每次线程拿数据时都认为数据不会被修改，所以不会上锁。但是如果线程想要更新数据，则会检查读取到更新这段时间内这个数据有没有被修改；如果修改过则再次读取尝试更新，直到更新成功。用于多读。</p>
+<ul>
+<li><p>java.util.concurrent.atomic包里面的原子类都是利用乐观锁实现。</p>
+</li>
+<li><p>CAS：Compare and Swap，线程在更新数据之前先比较原数据是否变化，如果没有变化则更新数据。</p>
+</li>
+</ul>
+<p><strong>公平锁</strong>：当锁被释放时，先申请的先得到锁。</p>
+<p><strong>非公平锁</strong>：当锁被释放时，后申请的线程可能先得到。默认采用非公平锁，因为非公平锁的吞吐量比较大。</p>
+<p><strong>可中断锁</strong>：线程A可以向线程B（或者线程B向自己）发出中断请求，线程B可以在合适时机响应中断，或直接忽略这个请求。在Java中，synchronized是不可中断锁，而Lock的实现类都是可中断锁。</p>
+<h2 id="4-Java加锁方式"><a href="#4-Java加锁方式" class="headerlink" title="4. Java加锁方式"></a>4. Java加锁方式</h2><p><strong>Java有两种加锁的方式</strong>：Synchronized关键字、Lock接口的实现类。</p>
+<p>ReentrantLock、ReadLock、WriteLock是Lock接口中最重要的三个实现类。</p>
+<img src="https://pic1.zhimg.com/v2-ddb71ab0b68d65ae70244bfdeb0d6704_r.jpg" alt="preview" style="zoom: 43%;" />
+
+<h4 id="Synchronized关键字"><a href="#Synchronized关键字" class="headerlink" title="Synchronized关键字"></a>Synchronized关键字</h4><p>Synchronized的锁升级：无锁 ——&gt; 偏向锁 ——&gt; 轻量级锁 ——&gt; 重量级锁</p>
+<p>偏向锁：初次执行到Synchronized代码块时，对象从无锁变成偏向锁（修改对象头里的锁标志位）。在执行完同步代码后，线程<strong>不会主动释放</strong>偏向锁。当第二次执行到同步代码块时，由于之前没有释放锁，所以也就不需要重新加锁。如果自始至终都只有一个线程在使用锁，则偏向锁相当于没有额外的开销，性能很高。</p>
+<p>轻量级锁：当有第二个线程B尝试获取锁时，发现是偏向锁，会先判断上偏向锁的线程A是否仍然存在；如果A仍然存在，则偏向锁升级为轻量级锁（自旋锁），否则线程B获得这个偏向锁，锁不升级。没有抢到轻量锁的线程将<strong>自旋/忙等</strong>，即不停的循环判断锁能否被成功获取（对象头里的锁标志位是否为”释放“）。</p>
+<p>重量级锁：如果锁竞争严重，当某个线程自旋超过10次（可通过JVM修改），会将轻量级锁升级为重量级锁，即修改对象的锁标志位。当后续线程尝试获取锁失败时，就会直接把自己<strong>挂起</strong>，等待将来被唤醒，而不是忙等。</p>
+<h4 id="Lock接口的实现类"><a href="#Lock接口的实现类" class="headerlink" title="Lock接口的实现类"></a>Lock接口的实现类</h4><p>ReentrantLock：可重入锁/递归锁，允许同一个进程多次获取同一把锁，即含加锁操作的递归函数在过程中不会阻塞自己。ReentrantLock是互斥锁。JDK提供的所有现成的Lock实现类、synchronized关键字锁都是可重入的。</p>
+<p>ReentrantReadWriteLock：读写锁，其实是一对锁：读锁/共享锁、写锁/互斥锁。读写锁有点类似乐观锁，但是是悲观锁策略，因为它在加锁前就决定了用读锁还是写锁，而不是在更新数据前进行判断。</p>
+<h4 id="Synchronized和Lock接口的实现类比较"><a href="#Synchronized和Lock接口的实现类比较" class="headerlink" title="Synchronized和Lock接口的实现类比较"></a>Synchronized和Lock接口的实现类比较</h4><p>相似点：两者都是可重入锁；都是以加锁方式实现同步，而且都是阻塞式的同步。</p>
+<p>不同点：</p>
+<ul>
+<li>synchronized是关键字，依赖于JVM来实现；Lock是API层面提供的锁，需要lock/unlock配合try/finally完成。</li>
+<li>synchronized是不可中断锁；而Lock的实现类都是可中断锁。</li>
+<li>synchronized是非公平锁；Lock默认是非公平锁，但可以通过构造函数要求使用公平锁。</li>
+</ul>
 
           
         
@@ -351,6 +2485,10 @@
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="extend next" rel="next" href="/blog/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+  </nav>
+
 
 
           </div>
@@ -394,7 +2532,7 @@
               
                 <a href="/blog/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

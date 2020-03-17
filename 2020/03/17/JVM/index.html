@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="JVM1. 内存区域  线程私有内存： 程序计数器：指向当前线程所执行的字节码位置。  虚拟机栈：Java方法执行的内存模型，传递方法调用所需的数据。每执行一个方法都会创建一个栈帧，方法的执行与完成伴随着栈帧的出栈入栈。  每个栈帧中包含局部变量表、操作数栈、动态链接、方法出口信息等。局部变量表包含基本数据类型、对象引用。  错误：StackOverflowError、OutOfMemoryErr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM">
+<meta property="og:url" content="https://liuqianx.github.io/blog/2020/03/17/JVM/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="JVM1. 内存区域  线程私有内存： 程序计数器：指向当前线程所执行的字节码位置。  虚拟机栈：Java方法执行的内存模型，传递方法调用所需的数据。每执行一个方法都会创建一个栈帧，方法的执行与完成伴随着栈帧的出栈入栈。  每个栈帧中包含局部变量表、操作数栈、动态链接、方法出口信息等。局部变量表包含基本数据类型、对象引用。  错误：StackOverflowError、OutOfMemoryErr">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F.png">
+<meta property="og:image" content="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/Java%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E8%BF%87%E7%A8%8B.png">
+<meta property="og:image" content="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.png">
+<meta property="og:image" content="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/classloader_WPS%E5%9B%BE%E7%89%87.png">
+<meta property="og:image" content="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3%E5%A0%86%E7%BB%93%E6%9E%84.png">
+<meta property="article:published_time" content="2020-03-17T04:38:16.644Z">
+<meta property="article:modified_time" content="2020-03-16T05:57:00.888Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://liuqianx.github.io/blog/2020/03/17/JVM/"/>
+
+
+
+
+
+  <title>JVM | Hexo</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liuqianx.github.io/blog/blog/2020/03/17/JVM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JVM</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-17T00:38:16-04:00">
+                2020-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><h2 id="1-内存区域"><a href="#1-内存区域" class="headerlink" title="1. 内存区域"></a>1. 内存区域</h2><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F.png" alt="img" style="zoom: 67%;" />
+
+<h4 id="线程私有内存："><a href="#线程私有内存：" class="headerlink" title="线程私有内存："></a>线程私有内存：</h4><ol>
+<li><p>程序计数器：指向当前线程所执行的字节码位置。</p>
+</li>
+<li><p>虚拟机栈：Java方法执行的内存模型，传递方法调用所需的数据。每执行一个方法都会创建一个栈帧，方法的执行与完成伴随着栈帧的出栈入栈。</p>
+<ul>
+<li><p>每个栈帧中包含局部变量表、操作数栈、动态链接、方法出口信息等。局部变量表包含基本数据类型、对象引用。</p>
+</li>
+<li><p>错误：StackOverflowError、OutOfMemoryError</p>
+</li>
+</ul>
+</li>
+<li><p>本地方法栈：作用和虚拟机栈几乎一致。虚拟机栈为Java方法服务，本地方法栈为Native方法服务。</p>
+</li>
+</ol>
+<h4 id="线程共享内存："><a href="#线程共享内存：" class="headerlink" title="线程共享内存："></a><strong>线程共享内存</strong>：</h4><ol>
+<li><p>堆：唯一目的就是存放对象实例，是垃圾收集器管理的主要区域。</p>
+<ul>
+<li>错误：OutOfMemoryError</li>
+</ul>
+</li>
+<li><p>方法区：存储已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码。是永久代的一种实现方式。在JDK1.8以后被元空间代替，元空间使用的是直接内存。</p>
+<ul>
+<li><p>class文件信息：包括<strong>类元信息</strong>和<strong>静态常量池</strong>。类元信息是class文件内容的一个框架，里面具体的内容通过静态常量池来存储。</p>
+</li>
+<li><p>运行时常量池：包含字面量（文本字符串、Final修饰的变量等）、符号引用。当Class文件被加载完成后，Java虚拟机会将静态常量池里的内容转移到动态常量池里，在静态常量池的符号引用中一些不能被重写的部分被转变为直接引用。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="直接内存（堆外内存）："><a href="#直接内存（堆外内存）：" class="headerlink" title="直接内存（堆外内存）："></a><strong>直接内存（堆外内存）</strong>：</h4><p>不属于JVM定义的内存区域，不由JVM管理和回收。NIO类可以直接使用Native函数库来分配堆外内存，然后通过一个存储在Java堆内的DirectByteBuffer对象作为对这块内存的引用，从而进行操作。</p>
+<h4 id="对象的创建："><a href="#对象的创建：" class="headerlink" title="对象的创建："></a>对象的创建：</h4><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/Java%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E8%BF%87%E7%A8%8B.png" alt="Java创建对象的过程" style="zoom:80%;" />
+
+<ol>
+<li>类加载检查：检查常量池，定位到这个类的符号引用，并且检查该类是否已被加载过。如果没有，则必须执行相应的类加载过程。</li>
+<li>分配内存：类加载完成后即可确定所需内存大小，从Java堆中划分出来。<ul>
+<li>分配方式：指针碰撞、空闲列表。</li>
+<li>并发问题，保证线程安全的方式：CAS+失败重试、TLAB</li>
+</ul>
+</li>
+<li>初始化零值：保证对象实例的字段不赋初始值就能直接使用。</li>
+<li>设置对象头：对象头包括对象所属类的元数据信息、对象的哈希码、对象的GC分代年龄等信息。</li>
+<li>执行init方法：执行new指令之后会接着执行init方法，创建对象。</li>
+</ol>
+<h4 id="对象的访问："><a href="#对象的访问：" class="headerlink" title="对象的访问："></a><strong>对象的访问</strong>：</h4><p>Java程序通过栈上的reference数据来访问堆上的具体对象。对象的访问方式由虚拟机的实现方式而定。目前主流的访问方式有使用句柄、直接指针两种。</p>
+<ol>
+<li>句柄：Java堆中划分出内存作为句柄池，栈中的reference存储对象的句柄地址，句柄中包含了对象的实例数据地址（堆）和类型数据地址（方法区）信息。</li>
+<li>直接指针：栈中的reference存储对象实例的地址，同时需要一个指针访问对象类型数据的信息。</li>
+</ol>
+<h2 id="2-类加载过程"><a href="#2-类加载过程" class="headerlink" title="2. 类加载过程"></a>2. 类加载过程</h2><p>所有的类都有类加载器加载，加载的作用就是将.class文件加载到虚拟机内存。系统加载Class类型的文件分三步：加载 —&gt;连接—&gt;初始化。连接过程也分三步：验证—&gt;准备—&gt;解析。</p>
+<img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.png" alt="类加载过程" style="zoom:67%;" />
+
+<h4 id="加载："><a href="#加载：" class="headerlink" title="加载："></a>加载：</h4><ol>
+<li>通过类名来获得定义此类的二进制字节流。</li>
+<li>将字节流代表的静态存储结构转换为方法区的<strong>运行时</strong>数据结构。</li>
+<li>在Java堆中生成一个代表该类的java.lang.Class类对象，作为方法区这些数据的访问入口。</li>
+</ol>
+<blockquote>
+<p>加载和连接阶段的部分内容是交叉进行的。</p>
+</blockquote>
+<h4 id="连接："><a href="#连接：" class="headerlink" title="连接："></a>连接：</h4><ol>
+<li><p>验证：文件格式验证 —&gt; 元数据验证 —&gt; 字节码验证 —&gt; 符号引用验证 。</p>
+</li>
+<li><p>准备：正式为类变量分配内存并设置类变量初始值，这些内存都将在方法区中分配。此时的“初始值”指的是当前数据类型默认的零值，初始化阶段才会赋我们设置的初始值。</p>
+</li>
+<li><p>解析：虚拟机将常量池内的符号引用替换为直接引用（内存地址指针/偏移量）。</p>
+</li>
+</ol>
+<h4 id="初始化："><a href="#初始化：" class="headerlink" title="初始化："></a>初始化：</h4><p>初始化阶段是执行类构造器clinit()方法的过程，该方法为带锁线程安全，所以可能引发死锁。</p>
+<h2 id="3-类加载器"><a href="#3-类加载器" class="headerlink" title="3. 类加载器"></a>3. 类加载器</h2><p>JVM内置3个重要的类加载器，BootstrapClassLoader、ExtensionClassLoader、AppClassLoader。</p>
+<ul>
+<li>启动类加载器：java.*开头的类均被Bootstrap ClassLoader加载。</li>
+<li>扩展类加载器：如javax.*开头的类。</li>
+<li>应用程序类加载器：它负责加载用户类路径（ClassPath）所指定的类，一般情况下这个就是程序中<strong>默认</strong>的类加载器。</li>
+<li>用户自定义类加载器：一般用不到，应用服务器大都使用了自定义的ClassLoader技术。</li>
+</ul>
+<h4 id="双亲委派模型："><a href="#双亲委派模型：" class="headerlink" title="双亲委派模型："></a>双亲委派模型：</h4><p>每一个类都有一个对应的ClassLoader。系统中的ClassLoader在协同工作时默认采用双亲委派模型。</p>
+<ol>
+<li>判断类是否被加载过，如果已经被加载过则直接返回，否则才会尝试加载。</li>
+<li>加载的时候，子类加载器不会自己尝试加载这个类，会把请求委派给该父类加载器的loadClass()处理，因此所有的请求最终都会传送到顶层的BootstrapClassLoader中。只有当父类加载器无法处理时，子类加载器才会去尝试加载。</li>
+<li>当父类加载器为null时，会使用启动类加载器BootstrapClassLoader作为父类加载器。</li>
+</ol>
+<blockquote>
+<p>这里的“双亲”表示的是“父类”的意思。另外类加载器之间的父子关系也不是通过继承来体现的，而是由“优先级”来决定。另外这里说的都是类的加载，与对象无关。</p>
+</blockquote>
+<img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/classloader_WPS%E5%9B%BE%E7%89%87.png" alt="ClassLoader" style="zoom:75%;" />
+
+<h4 id="双亲委派模型的好处："><a href="#双亲委派模型的好处：" class="headerlink" title="双亲委派模型的好处："></a>双亲委派模型的好处：</h4><p>保证了Java程序的稳定运行，避免了类的重复加载，保证了Java API核心不被篡改。</p>
+<h2 id="4-垃圾回收"><a href="#4-垃圾回收" class="headerlink" title="4. 垃圾回收"></a>4. 垃圾回收</h2><h4 id="区域分配："><a href="#区域分配：" class="headerlink" title="区域分配："></a>区域分配：</h4><p>为了更好的回收/分配内存，Java堆可分为新生代和老年代，又可细分为Eden、From Survivor(s0)、To Survivor(s1)，Tentired。Tentired属于老年代。</p>
+<p>经过一次MinorGC后，Eden区和s0区将被清空，此时s0和s1将交换角色（复制算法）。</p>
+<img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3%E5%A0%86%E7%BB%93%E6%9E%84.png" alt="img" style="zoom:80%;" />
+
+<ol>
+<li><p><strong>对象优先在Eden区分配</strong>。</p>
+<p>当Eden区没有足够空间进行分配时，虚拟机将发起一次minor GC。</p>
+<ul>
+<li>Minor GC：新生代的垃圾收集，很频繁。</li>
+<li>Major GC/Full GC：老年代的垃圾收集，伴随着至少一次的minor GC。</li>
+</ul>
+<p>如果GC期间发现Survivor空间也不足，虚拟机通过<strong>分配担保机制</strong>将新生代对象提前转移至老年代。</p>
+</li>
+<li><p><strong>大对象直接进入老年代</strong>。避免由于分配担保机制带来的复制。</p>
+</li>
+<li><p><strong>长期存活的对象进入老年代</strong>。</p>
+<p>对象在Eden区域分配，在一次minor GC之后，如果对象还存活，则会进入s1区，他的年龄会加1。每经历一次minor GC年龄就增长1岁，当年龄增长到一定程度（默认15岁），则会进入老年代中。</p>
+</li>
+<li><p>动态年龄阈值判定。</p>
+<p>为了更好的适应内存情况，如果survivor空间中相同年龄的所有对象所占空间的总和大于Survior空间的一半，则年龄大于或等于该年龄的对象直接进入老年代。</p>
+</li>
+</ol>
+<h4 id="判断无用的类："><a href="#判断无用的类：" class="headerlink" title="判断无用的类："></a>判断无用的类：</h4><p>需要同时满足以下3个条件才算是无用的类：</p>
+<ol>
+<li>所有的实例都被回收，即Java堆中不存在该类的任何实例。</li>
+<li>加载该类的ClassLoader已被回收。</li>
+<li>该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。</li>
+</ol>
+<h4 id="判断对象死亡："><a href="#判断对象死亡：" class="headerlink" title="判断对象死亡："></a>判断对象死亡：</h4><p>对Java堆垃圾的回收第一步需要判断哪些对象已经死亡。</p>
+<ol>
+<li><p>引用计数法：给对象添加一个引用计数器，每当有一个地方引用该对象，计数器就加1；当引用失效就减1。任何时候计数器为0的对象就是不可能再被使用的。（很难解决对象之间相互引用的问题）</p>
+</li>
+<li><p>可达性分析算法：和GC Roots有直接或间接关联的对象都是有效的，没有关联的就是无效对象。可作为GC Roots的对象包括以下4种：</p>
+<ul>
+<li>虚拟机栈中引用的对象</li>
+<li>本地方法栈中引用的对象</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+</ul>
+</li>
+<li><p>引用分类</p>
+<ul>
+<li><p>强引用：最普遍使用，不会被垃圾回收器回收。</p>
+<ul>
+<li>如果一个强引用为全局变量，需要在不使用它时把它赋值为null，因为强引用不会被回收。</li>
+</ul>
+</li>
+<li><p>软引用：具有软引用的对象，当内存空间不足时会被回收（可以用来缓存数据）。与引用队列联合使用。</p>
+</li>
+<li><p>弱引用：无论空间是否足够，都会回收该对象的内存。与引用队列联合使用。</p>
+</li>
+<li><p>虚引用：和没有引用一样，随时可能被回收。与引用队列联合使用。</p>
+<blockquote>
+<p>创建一个引用队列，当引用的对象将要被JVM回收时，会将这个引用加入到引用队列中，所以通过引用队列可以了解JVM垃圾回收情况。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="垃圾收集算法："><a href="#垃圾收集算法：" class="headerlink" title="垃圾收集算法："></a>垃圾收集算法：</h4><ol>
+<li><strong>标记-清除算法</strong>：分为两个阶段，首先标记出所有需要被回收的对象，在标记完成后统一回收被标记的对象。最基础的收集算法，后续算法都是对其不足的改进得到。该算法存在的问题：<ul>
+<li>效率问题</li>
+<li>空间问题（标记清除后产生大量不连续的碎片）</li>
+</ul>
+</li>
+<li><strong>复制算法</strong>：为了解决效率问题。将内存一分为二，每次只使用其中一块，当使用完后将还存活的对象复制到另一块区，然后将使用的空间一次清理掉。每次回收都是对空间的一半进行回收。</li>
+<li><strong>标记-整理算法</strong>：标记过程与标记-清除算法一样，然后让所有存活的对象向一端移动，然后清理掉端边界以外的内存。</li>
+<li><strong>分代收集算法</strong>：根据各个年代的特点选择合适的垃圾收集算法。<ul>
+<li>新生代：每次收集都有大量对象死去，所以可以选择<strong>复制算法</strong>，每次只需要复制少量对象即可完成GC。</li>
+<li>老年代：存活几率比较高，而且没有额外空间，必须选择<strong>标记-清除或者标记-整理</strong>算法进行GC。</li>
+</ul>
+</li>
+</ol>
+<h4 id="垃圾收集器："><a href="#垃圾收集器：" class="headerlink" title="垃圾收集器："></a>垃圾收集器：</h4><table>
+<thead>
+<tr>
+<th>种类</th>
+<th>范围</th>
+<th>单/多线程</th>
+<th>处理算法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Serial</td>
+<td>新生代（一代）</td>
+<td>单线程</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>ParNew</td>
+<td>新生代（二代）</td>
+<td>多线程</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>Parallel Scanvenge</td>
+<td>新生代（三代）</td>
+<td>多线程</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>Serial Old</td>
+<td>老年代（一代）</td>
+<td>单线程</td>
+<td>标记-整理</td>
+</tr>
+<tr>
+<td>Parallel Old</td>
+<td>老年代（二代）</td>
+<td>多线程</td>
+<td>标记-整理</td>
+</tr>
+<tr>
+<td>CMS</td>
+<td>老年代（三代）</td>
+<td>多线程</td>
+<td>标记-清除</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>整个Java堆（四代）</td>
+<td>多线程</td>
+<td>复制</td>
+</tr>
+</tbody></table>
+<h4 id="G1垃圾收集器："><a href="#G1垃圾收集器：" class="headerlink" title="G1垃圾收集器："></a>G1垃圾收集器：</h4><ol>
+<li>JDK1.7后全新的回收器，用于取代CMS。CMS在Minor GC时会暂停所有应用线程，G1的初衷是为了尽量缩短处理超大堆时产生的停顿，满足用户设定的gc停顿时间。</li>
+<li>G1不再把内存区域分成Eden、Survior、old三大块，而是把堆内存<strong>切分成很多个固定大小的区域</strong>（Region）。每个区域都是一块连续的内存，默认均分成2048份。G1最大的特点就是高效的执行回收，优先去回收那些大量对象可回收的region。</li>
+<li>每个Region都被标记了Eden、Survivor、Old。每次GC存活的对象从一个Region复制到另一个Region。</li>
+<li>G1提供了两种GC模式，Young GC和Mixed GC，两种都是Stop The World（所有线程会被暂停）。</li>
+<li><strong>Young GC</strong>会回收所有Eden以及Survivor区，并且将存活对象复制到Old区以及另一部分的Survivor区。</li>
+<li><strong>Mixed GC</strong>不是full GC，它只能回收部分老年代的Region。当Mixed GC的速度实在跟不上程序分配内存的速度时，会使用Serial Old GC（full GC）来收集整个Java堆。</li>
+<li>G1回收流程：<ul>
+<li><strong>初始标记</strong>：STW，标记出从GC Roots开始直接可达的对象。</li>
+<li><strong>并发标记</strong>：不暂停其他线程，从GC Roots开始对堆中对象进行可达性分析，一层一层的标记出存活对象。</li>
+<li><strong>最终标记</strong>：STW，并发标记的过程中用户程序可能修改了对象引用关系，最终标记标记出那些在并发标记阶段发生变化的对象，使它们能正确被回收。</li>
+<li><strong>筛选回收</strong>：STW，首先对各个Regin的回收价值和成本进行排序，根据用户所期待的GC停顿时间指定回收计划，回收一部分Region。</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/03/17/Java%E9%87%8D%E7%82%B9/" rel="next" title="Java重点">
+                <i class="fa fa-chevron-left"></i> Java重点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/03/17/Linux%E7%9B%B8%E5%85%B3/" rel="prev" title="Linux相关">
+                Linux相关 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM"><span class="nav-number">1.</span> <span class="nav-text">JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-内存区域"><span class="nav-number">1.1.</span> <span class="nav-text">1. 内存区域</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#线程私有内存："><span class="nav-number">1.1.0.1.</span> <span class="nav-text">线程私有内存：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程共享内存："><span class="nav-number">1.1.0.2.</span> <span class="nav-text">线程共享内存：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#直接内存（堆外内存）："><span class="nav-number">1.1.0.3.</span> <span class="nav-text">直接内存（堆外内存）：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对象的创建："><span class="nav-number">1.1.0.4.</span> <span class="nav-text">对象的创建：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对象的访问："><span class="nav-number">1.1.0.5.</span> <span class="nav-text">对象的访问：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-类加载过程"><span class="nav-number">1.2.</span> <span class="nav-text">2. 类加载过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#加载："><span class="nav-number">1.2.0.1.</span> <span class="nav-text">加载：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#连接："><span class="nav-number">1.2.0.2.</span> <span class="nav-text">连接：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化："><span class="nav-number">1.2.0.3.</span> <span class="nav-text">初始化：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-类加载器"><span class="nav-number">1.3.</span> <span class="nav-text">3. 类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派模型："><span class="nav-number">1.3.0.1.</span> <span class="nav-text">双亲委派模型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派模型的好处："><span class="nav-number">1.3.0.2.</span> <span class="nav-text">双亲委派模型的好处：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-垃圾回收"><span class="nav-number">1.4.</span> <span class="nav-text">4. 垃圾回收</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#区域分配："><span class="nav-number">1.4.0.1.</span> <span class="nav-text">区域分配：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#判断无用的类："><span class="nav-number">1.4.0.2.</span> <span class="nav-text">判断无用的类：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#判断对象死亡："><span class="nav-number">1.4.0.3.</span> <span class="nav-text">判断对象死亡：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集算法："><span class="nav-number">1.4.0.4.</span> <span class="nav-text">垃圾收集算法：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集器："><span class="nav-number">1.4.0.5.</span> <span class="nav-text">垃圾收集器：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#G1垃圾收集器："><span class="nav-number">1.4.0.6.</span> <span class="nav-text">G1垃圾收集器：</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
